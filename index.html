@@ -622,18 +622,28 @@ AU.bufs={}; AU.want='splash.mp3'; AU.songKey=null; AU.songGain=null;
 function songFor(stageId){ return SONG_FOR_STAGE[stageId]||'splash.mp3'; }
 function wantSong(file){
   AU.want=file; if(!AU.ctx) return;
+  if(AU.songHeld&&!AU.musicPaused){ AU.songHeld=null; }
   if(AU.songKey===file&&AU.songSrc) return;
   const b=AU.bufs[file]; if(b){ switchSong(file,b); return; }
   if(AU.loadingSong===file) return; AU.loadingSong=file;
   fetch(file).then(r=>r.ok?r.arrayBuffer():null).then(ab=>ab&&new Promise((res,rej)=>{ const p=AU.ctx.decodeAudioData(ab,res,rej); if(p&&p.catch) p.catch(rej); }))
     .then(b=>{ AU.loadingSong=null; if(!b) return; AU.bufs[file]=b; if(AU.want===file) switchSong(file,b); }).catch(()=>{ AU.loadingSong=null; });
 }
+function songPause(){   /* stop the song where it is; songResume picks up from the same spot */
+  const c=AU.ctx; AU.musicPaused=true; if(!c||!AU.songSrc||AU.songHeld) return;
+  const s=AU.songSrc, b=s.buffer; AU.songHeld={key:AU.songKey,buf:b,off:((c.currentTime-(AU.songT0||0))%b.duration+b.duration)%b.duration};
+  AU.songGain.gain.setTargetAtTime(0,c.currentTime,0.03); try{ s.stop(c.currentTime+0.12); }catch(e){} AU.songSrc=null; }
+function songResume(){
+  AU.musicPaused=false; const c=AU.ctx, h=AU.songHeld; AU.songHeld=null; if(!c||!h) return;
+  if(AU.want!==h.key){ wantSong(AU.want); return; }
+  const t=c.currentTime, s=c.createBufferSource(), g=c.createGain(); s.buffer=h.buf; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(1,t+0.02,0.12);
+  s.connect(g); g.connect(AU.mus); s.start(t+0.02,h.off); AU.songSrc=s; AU.songGain=g; AU.songKey=h.key; AU.songT0=t+0.02-h.off; }
 function switchSong(file,b){
-  const c=AU.ctx, t=c.currentTime;
+  const c=AU.ctx, t=c.currentTime; AU.songHeld=null; AU.musicPaused=false;
   if(AU.songSrc){ const old=AU.songSrc, og=AU.songGain, ok=AU.songKey; og.gain.setTargetAtTime(0,t,0.25); try{ old.stop(t+1.2); }catch(e){}
     if(ok&&ok!=='splash.mp3'&&ok!==file) delete AU.bufs[ok]; }   /* free the stage song's memory */
   const s=c.createBufferSource(), g=c.createGain(); s.buffer=b; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(1,t+0.05,0.3);
-  s.connect(g); g.connect(AU.mus); s.start(t+0.05); AU.songSrc=s; AU.songGain=g; AU.songKey=file;
+  s.connect(g); g.connect(AU.mus); s.start(t+0.05); AU.songSrc=s; AU.songGain=g; AU.songKey=file; AU.songT0=t+0.05;
 }
 /* Recorded effects (punch impact, special throw, block), shipped as files next to the page; the synth sounds play if they can't load */
 const SFX_FILES={punch:'sfx/punch.mp3', throw:'sfx/throw.mp3', block:'sfx/block.mp3'}; AU.buf={};
@@ -700,7 +710,7 @@ const mtof=m=>440*Math.pow(2,(m-69)/12);
 function musicTick(){
   const c=AU.ctx; if(!c) return;
   while(AU.next<c.currentTime+0.15){
-    if(settings.music&&!AU.songSrc) playStep(AU.step,AU.next);
+    if(settings.music&&!AU.songSrc&&!AU.musicPaused&&!AU.songHeld) playStep(AU.step,AU.next);
     AU.next+= (AU.step%2)? STEP*0.86 : STEP*1.14;
     AU.step=(AU.step+1)%32;
   }
@@ -2209,8 +2219,8 @@ function pollPads(now){
 addEventListener('gamepadconnected',e=>{ gp.seen[e.gamepad.index]=1; padToast((/dualsense|054c/i.test(e.gamepad.id)?'PS5 controller':'Controller')+' connected'); });
 addEventListener('gamepaddisconnected',e=>{ delete gp.seen[e.gamepad.index]; padToast('Controller disconnected'); if(current===null&&game.mode!=='demo') pauseGame(); });
 addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.body.classList.remove('gp'); } },true);
-function pauseGame(){ if(current!==null||game.mode==='demo') return; game.paused=true; show('pause'); try{speechSynthesis.cancel();}catch(e){} }
-function resumeGame(){ game.paused=false; show(null); last=performance.now(); }
+function pauseGame(){ if(current!==null||game.mode==='demo') return; game.paused=true; show('pause'); songPause(); try{speechSynthesis.cancel();}catch(e){} }
+function resumeGame(){ game.paused=false; show(null); last=performance.now(); songResume(); }
 
 /* ================= EVENTS ================= */
 function bindUI(){
@@ -2247,7 +2257,7 @@ function bindUI(){
   $('pauseBtn').addEventListener('click',pauseGame);
   $('resumeBtn').addEventListener('click',resumeGame);
   $('restartBtn').addEventListener('click',()=>{ const [a,b]=game.F; a.rounds=b.rounds=0; a.meter=b.meter=0; game.round=1; resetRound(); resumeGame(); });
-  $('quitBtn').addEventListener('click',()=>{ game.paused=false; goTitle(); });
+  $('quitBtn').addEventListener('click',()=>{ game.paused=false; songResume(); goTitle(); });
   document.querySelectorAll('.drips').forEach(dr=>[[8,0],[33,1.1],[57,0.4],[84,2.0],[71,2.8]].forEach(([l,dl])=>{ const d=document.createElement('span'); d.className='drip'; d.style.left=l+'%'; d.style.animationDelay=dl+'s'; dr.appendChild(d); }));
 
   const stick=$('stick'), knob=$('knob'); let sid=null;

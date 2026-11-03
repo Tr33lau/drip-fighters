@@ -201,7 +201,12 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 /* ===== Fight Draco: boss character select ===== */
 #scr-bsel{padding:0;display:grid;grid-template-rows:minmax(0,1fr) auto auto;grid-template-columns:minmax(0,1fr);align-items:stretch;justify-items:stretch;background:#07060b;overflow:hidden;--th:min(19vh,15vw)}
 #scr-bsel>*{min-width:0}
-.bs-art{position:absolute;left:0;right:0;top:0;height:74%;background:url(sprites/boss_sel_art.webp) 50% 16%/cover no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent 99%);mask-image:linear-gradient(180deg,#000 70%,transparent 99%)}
+.bs-hero,.bs-spot{display:none}
+#scr-bsel.v2 .bs-art{background-image:url(sprites/boss_sel_bg.webp);background-position:50% 40%;height:76%}
+#scr-bsel.v2 .bs-art::after{background:linear-gradient(90deg,rgba(7,6,11,.7),rgba(7,6,11,.15) 34%,rgba(7,6,11,.15) 66%,rgba(7,6,11,.62)),radial-gradient(60% 80% at 0% 40%,rgba(255,30,60,.28),transparent 70%),radial-gradient(60% 80% at 100% 40%,rgba(40,110,255,.3),transparent 70%)}
+#scr-bsel.v2 .bs-spot{display:block;position:absolute;left:48%;top:2%;width:min(62vh,46vw);height:80%;transform:translateX(-50%);background:radial-gradient(50% 50% at 50% 45%,rgba(255,255,255,.16),rgba(255,60,90,.08) 45%,transparent 72%);pointer-events:none}
+#scr-bsel.v2 .bs-hero{display:block;position:absolute;left:48%;bottom:-6%;height:104%;width:auto;transform:translateX(-50%);pointer-events:none;-webkit-user-select:none;user-select:none;filter:drop-shadow(-5px 0 10px rgba(255,40,70,.65)) drop-shadow(6px 0 12px rgba(50,130,255,.6)) drop-shadow(0 18px 26px rgba(0,0,0,.55))}
+.bs-art{position:absolute;left:0;right:0;top:0;height:74%;background:url(sprites/boss_sel_bg.webp) 50% 16%/cover no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent 99%);mask-image:linear-gradient(180deg,#000 70%,transparent 99%)}
 .bs-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,6,11,.62),rgba(7,6,11,.08) 32%,rgba(7,6,11,0) 60%,rgba(7,6,11,.5)),linear-gradient(0deg,rgba(7,6,11,.35),transparent 30%)}
 .bs-floor{position:absolute;left:0;right:0;bottom:0;height:42%;background:radial-gradient(40% 60% at 12% 100%,rgba(255,40,70,.22),transparent 70%),radial-gradient(40% 60% at 88% 100%,rgba(40,110,255,.24),transparent 70%),linear-gradient(180deg,transparent,rgba(7,6,11,.55) 40%,rgba(7,6,11,.85));pointer-events:none}
 .bs-main{position:relative;grid-row:1}
@@ -280,6 +285,10 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
   .bs-foot{flex-wrap:wrap;justify-content:center}
   .bs-go{order:-1;width:100%;justify-content:center;font-size:5.4vw}
   .bs-btn{min-width:0;flex:1;font-size:3.8vw}
+  #scr-bsel.v2 .bs-hero{height:50%;top:7%;bottom:auto;left:64%}
+  #scr-bsel.v2 .bs-spot{left:64%;height:55%}
+  .bs-stats{display:none}
+  .bs-right{padding-top:6vh;background:linear-gradient(180deg,transparent,rgba(7,6,11,.75) 30%)}
 }
 /* ===== character select ===== */
 #scr-select{padding:0;display:grid;grid-template-columns:minmax(0,27fr) minmax(0,46fr) minmax(0,27fr);background:#07060b;gap:0;align-items:stretch;justify-items:stretch}
@@ -638,8 +647,10 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
     </div>
   </section>
 
-  <section id="scr-bsel" class="screen" hidden>
+  <section id="scr-bsel" class="screen v2" hidden>
     <div class="bs-art"></div>
+    <div class="bs-spot"></div>
+    <img class="bs-hero" src="sprites/draco_hero.webp" alt="" draggable="false">
     <div class="bs-floor"></div>
     <div class="bs-main">
       <div class="bs-left">
@@ -2541,7 +2552,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='f49c7413cd', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='0743ffb7b9', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

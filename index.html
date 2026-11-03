@@ -172,6 +172,10 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
   #scr-title .logo .l2{font-size:clamp(18px,5vh,30px)}
   .menu{gap:6px}.mbtn{font-size:clamp(13px,3.4vh,17px);padding:.38em 1em}.mbtn.play{font-size:clamp(20px,6.4vh,30px)}
   .t-left{gap:8px;width:min(42vw,380px)}
+  .modes-open .logo .crown{width:clamp(28px,6.4vh,48px)}
+  #scr-title.modes-open .logo .l1{font-size:clamp(38px,10.4vh,66px)}
+  #scr-title.modes-open .logo .l2{font-size:clamp(16px,4.2vh,26px)}
+  .modes .mbtn{padding:.3em 1em}
 }
 
 /* ===== character select ===== */
@@ -226,6 +230,7 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 #scr-select .tile.p1.p2{border-color:#c25cff;box-shadow:0 0 0 2px #c25cff,0 0 22px rgba(194,92,255,.55)}
 #scr-select .tile .tg{background:#ff3b4e;color:#fff;font-family:var(--display);font-weight:400}
 #scr-select .tile .tg.p2{background:#2f86ff}
+#scr-select .tile .tg.boss{left:50%;right:auto;translate:-50% 0;padding:1px 5px;letter-spacing:.03em;white-space:nowrap}
 .cs-foot{display:flex;gap:6px;padding:6px 14px;background:rgba(10,8,14,.82);border:1px solid rgba(255,255,255,.18);transform:skewX(-12deg)}
 .hbtn{display:flex;align-items:center;gap:.5em;background:none;border:none;color:#fff;font-family:var(--display);text-transform:uppercase;font-size:clamp(13px,2.4vh,19px);padding:4px 12px;cursor:pointer;transform:skewX(12deg)}
 .sym{display:inline-grid;place-items:center;width:1.6em;height:1.6em;border-radius:50%;border:2px solid currentColor;font-size:.95em;font-style:normal}
@@ -326,6 +331,19 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 
 /* vs */
 #scr-vs{background:#07060b;padding:0;cursor:pointer}
+#scr-cutscene{background:#000;padding:0;z-index:9}
+#csVid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000;opacity:0;transition:opacity .35s}
+#csVid.on{opacity:1}
+#scr-cutscene.out #csVid{opacity:0;transition-duration:.25s}
+.cs-btn{position:absolute;bottom:max(14px,3.2vh);display:flex;align-items:center;gap:.45em;font-family:var(--display);font-size:clamp(13px,2.4vh,18px);letter-spacing:.04em;text-transform:uppercase;color:#fff;background:rgba(8,7,12,.62);border:2px solid rgba(255,255,255,.45);padding:.42em .95em;transform:skewX(-10deg);cursor:pointer;opacity:.85;transition:opacity .15s,border-color .15s}
+.cs-btn[hidden]{display:none}
+.cs-btn:hover,.cs-btn:focus-visible{opacity:1;border-color:var(--gold);outline:none}
+.cs-btn .ic{width:1.1em;height:1.1em}
+.cs-skip{right:max(16px,env(safe-area-inset-right))}
+.cs-sound{left:max(16px,env(safe-area-inset-left))}
+.mbtn.boss{border-color:#ff4b4b;background:linear-gradient(90deg,rgba(64,8,14,.94),rgba(22,12,20,.84));box-shadow:0 0 0 1px rgba(0,0,0,.6),0 6px 14px rgba(0,0,0,.45),0 0 18px rgba(255,75,75,.28)}
+.mbtn.boss .ic{color:#ff6b6b}
+.mbtn.boss b{color:#ff8a8a;font-weight:inherit}
 .vs-half{position:absolute;top:0;bottom:0;width:60%;display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
 .vs-l{left:0;clip-path:polygon(0 0,100% 0,80% 100%,0 100%);background:linear-gradient(160deg,var(--c1) -40%,#100d17 70%);animation:slideL .45s cubic-bezier(.2,1,.3,1) both}
 .vs-r{right:0;clip-path:polygon(20% 0,100% 0,100% 100%,0 100%);background:linear-gradient(200deg,var(--c2) -40%,#100d17 70%);animation:slideR .45s cubic-bezier(.2,1,.3,1) both}
@@ -420,6 +438,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
         <button class="mbtn play" id="playBtn" aria-expanded="false" aria-controls="modes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 0 1 4 4v3a3 3 0 0 1-5.4 1.8L15 15H9l-1.6 1.8A3 3 0 0 1 2 15v-3a4 4 0 0 1 4-4z"/><path d="M7 10.5v4M5 12.5h4"/><circle cx="16" cy="11.5" r=".9"/><circle cx="18.2" cy="13.6" r=".9"/></svg><span>Play</span><i class="slash">//</i></button>
         <div class="modes" id="modes" hidden>
           <button class="mbtn" data-mode="arcade"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h10v20H7z"/><path d="M9 5h6v5H9z"/><circle cx="10.2" cy="14" r="1"/><path d="M13 14h2.5M9 18h6"/></svg><span>Arcade</span></button>
+          <button class="mbtn boss" data-mode="boss" id="btnBoss"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5v19M5.6 5.2c2.9 2.4 2.9 11.2 0 13.6M18.4 5.2c-2.9 2.4-2.9 11.2 0 13.6"/></svg><span>Fight <b id="bossNm">DRACO</b></span></button>
           <button class="mbtn" data-mode="versus"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.3 2.4-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17" cy="8.5" r="2.5"/><path d="M15.5 14.2c3.2.1 6 2.6 6 5.8"/></svg><span>Versus CPU</span></button>
           <button class="mbtn" data-mode="2p" id="btn2p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="3"/><path d="M2 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="16.5" cy="8" r="3"/><path d="M11 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/></svg><span>2 Players</span></button>
           <button class="mbtn" id="btnOnline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg><span>Online</span></button>
@@ -523,6 +542,11 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
     <div class="vs-half vs-r"><img id="vsImg2" alt=""><div class="vs-nm" id="vsNm2"></div></div>
     <div class="vs-mark">VS</div>
     <div class="vs-stage" id="vsStage"></div>
+  </section>
+  <section id="scr-cutscene" class="screen" hidden>
+    <video id="csVid" playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback></video>
+    <button class="cs-btn cs-sound" id="csSound" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg><span>Tap for sound</span></button>
+    <button class="cs-btn cs-skip" id="csSkip"><span>Skip</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l7 7-7 7M13 5l7 7-7 7"/></svg></button>
   </section>
 
   <section id="scr-result" class="screen dim" hidden>
@@ -1998,11 +2022,11 @@ function frame(now){
 }
 
 /* ================= SCREENS & FLOW ================= */
-const SCREENS=['title','options','online','select','stage','vs','result','pause','help'];
-const MENU_SCREENS={title:1,options:1,online:1,select:1,stage:1,help:1};
+const SCREENS=['title','options','online','select','stage','vs','cutscene','result','pause','help'];
+const MENU_SCREENS={title:1,options:1,online:1,select:1,stage:1,help:1,cutscene:1};
 let current='title';
 function show(id){
-  current=id; if(gp.active&&id&&id!=='select'&&id!=='stage'&&id!=='vs') setTimeout(()=>{ const L=menuFocusables(); if(L.length&&!L.includes(document.activeElement)) L[0].focus({preventScroll:true}); },60);
+  current=id; if(gp.active&&id&&id!=='select'&&id!=='stage'&&id!=='vs'&&id!=='cutscene') setTimeout(()=>{ const L=menuFocusables(); if(L.length&&!L.includes(document.activeElement)) L[0].focus({preventScroll:true}); },60);
   for(const s of SCREENS) $('scr-'+s).hidden=(s!==id);
   const fighting=id===null&&game.mode!=='demo';
   game.menu=!fighting;
@@ -2017,9 +2041,9 @@ function startDemo(){
   startMatch(pool[i],pool[j],new AI(1),new AI(1),pool[j].stage);
 }
 function goTitle(){ wantSong('splash.mp3'); game.mode='demo'; game.F=null; game.stage=null; setModes(false); show('title'); setTimeout(()=>{ const b=$('playBtn'); if(b&&finePointer) b.focus({preventScroll:true}); },50); }   /* menus are drawn over a still background: no fight runs behind them */
-function setModes(open){ $('modes').hidden=!open; $('playBtn').setAttribute('aria-expanded',String(open)); }
+function setModes(open){ $('modes').hidden=!open; $('scr-title').classList.toggle('modes-open',open); $('playBtn').setAttribute('aria-expanded',String(open)); }
 const sel={mode:null,step:0,cursor:0,picks:[]};
-function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; show('select'); renderSelect(); }
+function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; if(mode==='boss') cutPrime(); show('select'); renderSelect(); }
 let FIG_ASPECT=0.66;   /* widest fighter picture (width / height), measured at boot */
 function fitFigure(box,img){
   if(!box||!img||box.offsetParent===null) return;
@@ -2036,7 +2060,8 @@ function fitFigure(box,img){
 /* Select screen: fighters with a combat-idle clip bounce in their fight stance; everyone else is a still picture */
 const SEL_IDLE={"fresh": {"n": 26, "w": 360, "h": 623, "cols": 11, "fps": 24}, "boss": {"n": 19, "w": 346, "h": 618, "cols": 11, "fps": 24}, "nola": {"n": 22, "w": 310, "h": 702, "cols": 12, "fps": 24}, "angel": {"n": 28, "w": 409, "h": 694, "cols": 9, "fps": 24}, "draco": {"n": 19, "w": 435, "h": 667, "cols": 9, "fps": 24}}, selIdle={img:{},side:[{id:null,k:-1,cw:0},{id:null,k:-1,cw:0}]};
 function dropSelSheets(keep){ keep=keep||[]; for(const k in selIdle.img) if(!keep.includes(k)){ selIdle.img[k].src=''; delete selIdle.img[k]; } }
-function csFighter(s){ if(sel.mode==='online') return s===0?ROSTER[NET.myPick??sel.cursor]:(NET.oppPick!=null?ROSTER[NET.oppPick]:null);
+function csFighter(s){ if(sel.mode==='boss') return s===0?ROSTER[sel.picks.length?sel.picks[0]:sel.cursor]:bossCh();
+  if(sel.mode==='online') return s===0?ROSTER[NET.myPick??sel.cursor]:(NET.oppPick!=null?ROSTER[NET.oppPick]:null);
   if(s===0) return sel.step===0?ROSTER[sel.cursor]:ROSTER[sel.picks[0]]; return sel.step===1?ROSTER[sel.cursor]:null; }
 function selIdleSheet(id){
   if(smallSheets()) dropSelSheets([0,1].map(csFighter).filter(Boolean).map(f=>f.id).concat(id));   /* low quality: keep only the sheets on screen */
@@ -2052,9 +2077,9 @@ function sizeSelCanvas(){ for(let s=0;s<2;s++){ const S=selIdle.side[s], m=SEL_I
 function fitFigures(){ sizeSelCanvas(); fitFigure($('resCard'),$('resImg')); }
 function renderSide(s){
   const n=s+1, el=$('csSide'+n), f=csFighter(s), S=selIdle.side[s], two=sel.mode==='2p';
-  const on=sel.mode==='online';
-  $('csTag'+n).textContent=on?(s===0?'You':'Opponent'):s===0?'Player 1':(two?'Player 2':'CPU');
-  el.classList.toggle('locked',on?(s===0?NET.myPick!=null:NET.oppPick!=null):(s===0&&sel.step===1));
+  const on=sel.mode==='online', boss=sel.mode==='boss';
+  $('csTag'+n).textContent=on?(s===0?'You':'Opponent'):s===0?'Player 1':(two?'Player 2':boss?'Boss · Hard':'CPU');
+  el.classList.toggle('locked',on?(s===0?NET.myPick!=null:NET.oppPick!=null):(s===0&&sel.step===1)||(boss&&s===1));
   if(!f){ el.classList.add('empty'); S.id=null; $('csImg'+n).hidden=true; $('csAnim'+n).hidden=true; $('csGhost'+n).hidden=true;
     const w=$('csWait'+n); w.hidden=false; w.querySelector('span').textContent=on?'Opponent is choosing…':sel.mode==='arcade'?'Every fighter, one by one':(two?'Waiting for player 2':'CPU picks next'); return; }
   el.classList.remove('empty'); $('csWait'+n).hidden=true;
@@ -2076,11 +2101,12 @@ function renderSelect(){
     document.querySelectorAll('#selGrid .tile').forEach((t,i)=>{ t.classList.toggle('p1',i===p1); t.classList.toggle('p2',i===p2); t.classList.toggle('sel',i===sel.cursor);
       t.querySelector('.tags').innerHTML=(i===p1?'<span class="tg">YOU</span>':'')+(i===p2?'<span class="tg p2">OPP</span>':''); });
     return; }
-  $('selTitle').innerHTML=sel.step===0?(two?'<em>P1</em> · Character select':'Character select'):(two?'<em>P2</em> · Character select':'Choose your opponent');
+  const boss=sel.mode==='boss', bi=ROSTER.indexOf(bossCh());
+  $('selTitle').innerHTML=boss?'<em>Boss</em> · Choose your fighter':sel.step===0?(two?'<em>P1</em> · Character select':'Character select'):(two?'<em>P2</em> · Character select':'Choose your opponent');
   renderSide(0); renderSide(1); drawSelIdle(performance.now());
-  const p1=sel.step===0?sel.cursor:sel.picks[0], p2=sel.step===1?sel.cursor:-1;
+  const p1=sel.step===0?sel.cursor:sel.picks[0], p2=boss?bi:sel.step===1?sel.cursor:-1;
   document.querySelectorAll('#selGrid .tile').forEach((t,i)=>{ t.classList.toggle('p1',i===p1); t.classList.toggle('p2',i===p2); t.classList.toggle('sel',i===sel.cursor); t.setAttribute('aria-pressed',i===sel.cursor?'true':'false');
-    const tags=[]; if(i===p1) tags.push(`<span class="tg">P1</span>`); if(i===p2) tags.push(`<span class="tg p2">${two?'P2':'CPU'}</span>`);
+    const tags=[]; if(i===p1) tags.push(`<span class="tg">P1</span>`); if(i===p2&&!(boss&&i===p1)) tags.push(boss?'<span class="tg p2 boss">BOSS</span>':`<span class="tg p2">${two?'P2':'CPU'}</span>`);
     t.querySelector('.tags').innerHTML=tags.join(''); });
 }
 /* Fighter names: renamed from the select screen, saved on this device */
@@ -2090,7 +2116,7 @@ function loadNames(){ let m={}; try{ m=JSON.parse(localStorage.getItem(NAME_KEY)
 function saveNames(){ const m={}; for(const ch of ROSTER) if(ch.name!==ch.defName) m[ch.id]=ch.name; try{ localStorage.setItem(NAME_KEY,JSON.stringify(m)); }catch(e){} }
 function setFighterName(ch,n){ n=(n||'').replace(/\s+/g,' ').trim().toUpperCase().slice(0,12);
   if(!n||n===ch.defName){ ch.name=ch.defName; ch.speak=ch.defSpeak; } else { ch.name=n; ch.speak=undefined; }
-  saveNames(); document.querySelectorAll('#selGrid .tile').forEach((t,i)=>{ const c=ROSTER[i]; t.querySelector('.nm').textContent=c.name; t.setAttribute('aria-label',c.name); }); }
+  saveNames(); syncBossName(); document.querySelectorAll('#selGrid .tile').forEach((t,i)=>{ const c=ROSTER[i]; t.querySelector('.nm').textContent=c.name; t.setAttribute('aria-label',c.name); }); }
 let renaming=false;
 function startRename(){ if(renaming) return; renaming=true; const n=sel.step+1, ch=ROSTER[sel.cursor], inp=$('csNameIn'+n);
   inp.value=ch.name; inp.placeholder=ch.defName; inp.hidden=false; $('csName'+n).hidden=true; $('csEdit'+n).textContent='Save'; inp.focus(); inp.select(); }
@@ -2113,12 +2139,55 @@ function lockPick(){
   if(sel.mode==='online'){ netLockPick(); return; }
   audioInit(); sfx.confirm();
   sel.picks.push(sel.cursor);
+  if(sel.mode==='boss'){
+    const me=ROSTER[sel.picks[0]], b=bossCh(); sel.stageId=BOSS_STAGE;
+    ensureFighter(me); ensureFighter(b);   /* load both fighters while the intro plays */
+    playCutscene(()=>{ wantSong(songFor(BOSS_STAGE)); goVS(me,b); }); return;
+  }
   if(sel.mode==='arcade'){
     const me=sel.picks[0]; const order=ROSTER.map((_,i)=>i).filter(i=>i!==me).sort(()=>Math.random()-0.5);
     game.arcade={me,order,idx:0}; goVS(ROSTER[me],ROSTER[order[0]]); return;
   }
   if(sel.picks.length<2){ sel.step=1; sel.cursor=(sel.cursor+1)%ROSTER.length; renderSelect(); return; }
   goStage();
+}
+/* ---- Fight Draco (boss mode): your pick vs Draco on his court, Hard CPU, opens with his intro scene ---- */
+const BOSS_ID='draco', BOSS_STAGE='crank', BOSS_LEVEL=2, BOSS_INTRO='cutscenes/draco_intro.mp4';
+const bossCh=()=>ROSTER.find(c=>c.id===BOSS_ID)||ROSTER[ROSTER.length-1];
+function syncBossName(){ const el=$('bossNm'); if(el) el.textContent=bossCh().name; }
+const cut={on:false,started:false,t0:0,done:null,timer:null,cap:null};
+function cutPrime(){ const v=$('csVid'); if(!v.getAttribute('src')){ v.preload='auto'; v.src=BOSS_INTRO; try{ v.load(); }catch(e){} } }   /* start buffering on the select screen */
+function preloadSong(file){ if(!AU.ctx||AU.bufs[file]||AU.loadingSong===file) return; AU.loadingSong=file;
+  fetch(file).then(r=>r.ok?r.arrayBuffer():null).then(ab=>ab&&new Promise((res,rej)=>{ const p=AU.ctx.decodeAudioData(ab,res,rej); if(p&&p.catch) p.catch(rej); }))
+    .then(b=>{ AU.loadingSong=null; if(b) AU.bufs[file]=b; }).catch(()=>{ AU.loadingSong=null; }); }
+function playCutscene(done){
+  const v=$('csVid'); cut.on=true; cut.started=false; cut.done=done; cut.t0=performance.now();
+  if(!v.getAttribute('src')) v.src=BOSS_INTRO;
+  try{ v.currentTime=0; }catch(e){}
+  v.muted=!settings.sound; v.volume=1; v.classList.remove('on'); $('scr-cutscene').classList.remove('out'); $('csSound').hidden=true;
+  show('cutscene'); songPause(); try{ speechSynthesis.cancel(); }catch(e){}
+  preloadSong(songFor(BOSS_STAGE));
+  const p=v.play();   /* called straight from the tap / key press, so the scene can play with sound */
+  if(p&&p.catch) p.catch(()=>{ if(!cut.on) return; v.muted=true;   /* sound blocked by the browser: play silently, offer sound */
+    v.play().then(()=>{ if(cut.on&&settings.sound) $('csSound').hidden=false; }).catch(()=>endCutscene()); });
+  clearTimeout(cut.timer); cut.timer=setTimeout(()=>{ if(cut.on&&!cut.started) endCutscene(); },7000);   /* never started (offline / blocked): go to the fight */
+  clearTimeout(cut.cap); cut.cap=setTimeout(()=>endCutscene(),25000);
+}
+function skipCutscene(){ if(cut.on&&performance.now()-cut.t0>350) endCutscene(); }
+function endCutscene(){
+  if(!cut.on) return; cut.on=false; clearTimeout(cut.timer); clearTimeout(cut.cap);
+  const v=$('csVid'), scr=$('scr-cutscene'), d=cut.done; cut.done=null; scr.classList.add('out');
+  setTimeout(()=>{ try{ v.pause(); }catch(e){} v.classList.remove('on'); v.removeAttribute('src'); try{ v.load(); }catch(e){}   /* free the video decoder before the fight */
+    if(d) d(); },240);
+}
+function bindCutscene(){
+  const v=$('csVid');
+  v.addEventListener('playing',()=>{ cut.started=true; v.classList.add('on'); });
+  v.addEventListener('ended',()=>endCutscene());
+  v.addEventListener('error',()=>{ if(cut.on) endCutscene(); });
+  $('csSkip').addEventListener('click',e=>{ e.stopPropagation(); audioInit(); sfx.ui(); skipCutscene(); });
+  $('csSound').addEventListener('click',e=>{ e.stopPropagation(); v.muted=false; $('csSound').hidden=true; v.play().catch(()=>{}); });
+  syncBossName();
 }
 /* ---- stage select (versus / 2P; arcade keeps each opponent's home stage) ---- */
 const STAGE_LIST=['block','crank','quarter','arcade','roof','gym'];
@@ -2173,6 +2242,7 @@ function goVS(c1,c2){
   $('vsImg2').style.filter=c1===c2?'drop-shadow(0 14px 14px rgba(0,0,0,.7)) hue-rotate(220deg) saturate(.6) brightness(.85)':'';
   const st=STAGES[matchStage(c2)]||STAGES.block; let label=st.name;
   if(game.mode==='arcade'||sel.mode==='arcade') label=`FIGHT ${game.arcade.idx+1} OF ${game.arcade.order.length} · ${st.name}`;
+  else if(sel.mode==='boss') label=`BOSS FIGHT · ${st.name}`;
   $('vsStage').textContent=label;
   ['.vs-l','.vs-r','.vs-mark'].forEach(s=>{ const e=v.querySelector(s); e.style.animation='none'; void e.offsetWidth; e.style.animation=''; });
   show('vs'); sfx.whoosh(true,true);
@@ -2190,6 +2260,7 @@ function beginMatch(){
   const p1=new Human(mode==='2p'?MAP_P1:MAP_SOLO,true);
   let p2;
   if(mode==='2p') p2=new Human(MAP_P2,false);
+  else if(mode==='boss') p2=new AI(BOSS_LEVEL);   /* boss fight is always Hard, whatever the difficulty setting */
   else { const bonus=mode==='arcade'?game.arcade.idx*0.07:0; p2=new AI(settings.diff,bonus); }
   for(const b in touchIn) touchIn[b]=false; keyLatch.clear(); touchLatch.clear();
   startMatch(c1,c2,p1,p2,matchStage(c2));
@@ -2209,6 +2280,11 @@ function onMatchEnd(w){
     if(won&&A.idx>=A.order.length-1){ $('resKick').textContent='Undisputed · everyone beaten'; btns.push(['Play again',()=>chooseMode('arcade'),true],['Title',goTitle]); setTimeout(()=>confetti(game.F[0].x,300,[ch.color,'#f2c14e','#fff'],90),100); }
     else if(won){ $('resKick').textContent=`Winner · fight ${A.idx+1} of ${A.order.length}`; btns.push(['Next fight',()=>{ A.idx++; goVS(ROSTER[A.me],ROSTER[A.order[A.idx]]); },true],['Quit',goTitle]); }
     else { $('resKick').textContent=`You lost fight ${A.idx+1} of ${A.order.length}`; btns.push(['Retry',()=>goVS(ROSTER[A.me],ROSTER[A.order[A.idx]]),true],['Quit',goTitle]); }
+  } else if(mode==='boss'){
+    const b=game.F[1].ch;
+    if(won){ $('resKick').textContent=`Boss beaten · you took down ${b.name}`; setTimeout(()=>confetti(game.F[0].x,300,[ch.color,'#ff4b4b','#f2c14e','#fff'],90),100); }
+    else $('resKick').textContent=`${b.name} runs the court`;
+    btns.push([won?'Fight again':'Retry',()=>goVS(game.F[0].ch,game.F[1].ch),true],['Change fighter',()=>chooseMode('boss')],['Title',goTitle]);
   } else {
     $('resKick').textContent=mode==='2p'?(w.side===0?'Player 1 wins':'Player 2 wins'):(won?'You win':'CPU wins');
     btns.push(['Rematch',()=>goVS(game.F[0].ch,game.F[1].ch),true],['Change fighters',()=>chooseMode(mode)],['Title',goTitle]);
@@ -2242,7 +2318,7 @@ function menuDir(dir){   /* dir: 'u','d','l','r' */
   if(current==='select'||current==='stage'){ fakeKey({u:'ArrowUp',d:'ArrowDown',l:'ArrowLeft',r:'ArrowRight'}[dir]); return; }
   menuMove(dir==='u'||dir==='l'?-1:1); }
 function menuOK(){
-  if(current==='select'||current==='stage'||current==='vs'){ fakeKey('Enter'); return; }
+  if(current==='select'||current==='stage'||current==='vs'||current==='cutscene'){ fakeKey('Enter'); return; }
   const a=document.activeElement, L=menuFocusables(); if(a&&L.includes(a)) a.click(); else if(L.length) L[0].focus({preventScroll:true}); }
 function menuBack(){
   if(current==='title'){ if(!$('modes').hidden){ setModes(false); $('playBtn').focus({preventScroll:true}); } return; }
@@ -2267,7 +2343,7 @@ function pollPads(now){
       if(opt&&!pv.opt) pauseGame();
     } else {
       for(const b of 'lrudpksx') keys.delete(`GP${n}_${b}`);
-      if(opt&&!pv.opt){ if(current==='pause') resumeGame(); }
+      if(opt&&!pv.opt){ if(current==='pause') resumeGame(); else if(current==='cutscene') fakeKey('Escape'); }
       for(const d of 'udlr'){ const r=gp.rep[n+d];
         if(dir[d]&&!pv[d]){ menuDir(d); gp.rep[n+d]=now+380; }
         else if(dir[d]&&r&&now>r){ menuDir(d); gp.rep[n+d]=now+130; }
@@ -2286,7 +2362,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='18e338cebb', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='73395767ee', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2494,6 +2570,7 @@ function bindUI(){
   $('selGo').addEventListener('click',lockPick);
   $('selRandom').addEventListener('click',()=>{ audioInit(); sel.cursor=Math.floor(Math.random()*ROSTER.length); renderSelect(); lockPick(); });
   $('scr-vs').addEventListener('click',beginMatch);
+  bindCutscene();
   $('pauseBtn').addEventListener('click',pauseGame);
   $('resumeBtn').addEventListener('click',resumeGame);
   $('restartBtn').addEventListener('click',()=>{ const [a,b]=game.F; a.rounds=b.rounds=0; a.meter=b.meter=0; game.round=1; resetRound(); resumeGame(); });
@@ -2536,6 +2613,7 @@ function bindUI(){
       return;
     }
     if(current==='vs'&&(code==='Enter'||code==='Space')){ beginMatch(); return; }
+    if(current==='cutscene'){ if(!e.repeat&&['Enter','Space','Escape','KeyJ','KeyF'].includes(code)) skipCutscene(); return; }
     if(current===null){
       if(code==='Escape'||code==='KeyP'){ pauseGame(); return; }
       if(e.repeat) return; keys.add(code); keyLatch.add(code); return;
@@ -2548,7 +2626,8 @@ function bindUI(){
   });
   addEventListener('keyup',e=>keys.delete(e.code));
   addEventListener('blur',()=>{ keys.clear(); for(const b in touchIn) touchIn[b]=false; });
-  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ pauseGame(); if(AU.ctx) AU.ctx.suspend().catch(()=>{}); } else if(AU.ctx) AU.ctx.resume().catch(()=>{}); });
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&cut.on){ const v=$('csVid'); if(v.paused&&!v.ended) v.play().catch(()=>{}); }
+    if(document.hidden){ pauseGame(); if(AU.ctx) AU.ctx.suspend().catch(()=>{}); } else if(AU.ctx) AU.ctx.resume().catch(()=>{}); });
   addEventListener('resize',()=>{ layout(); fitFigures(); });
   addEventListener('orientationchange',()=>setTimeout(layout,200));
   document.addEventListener('gesturestart',e=>e.preventDefault());
@@ -2836,7 +2915,7 @@ const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot) hot.snapshot(()=>({diff:settings.diff,sound:settings.sound,music:settings.music,quality:settings.quality}));
 const startApp=data=>{ if(data&&typeof data==='object') Object.assign(settings,data); boot(); };
 if(hot&&hot.ready) hot.ready(startApp); else startApp((hot&&hot.data)||{});
-window.__df={NET,netHash,netSnap,netRestore,ensureFighter,PHONE,setQuality,qual,perfWatch,AU,game,ROSTER,startMatch,AI,Human,show,goVS,sel,STAGES,step,render,get cam(){return cam;},get projs(){return projs;}};
+window.__df={NET,netHash,netSnap,netRestore,ensureFighter,PHONE,setQuality,qual,perfWatch,AU,game,ROSTER,startMatch,AI,Human,show,goVS,sel,STAGES,step,render,get cam(){return cam;},get projs(){return projs;},get current(){return current;},cut};
 </script>
 </body>
 </html>

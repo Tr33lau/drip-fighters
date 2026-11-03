@@ -337,6 +337,9 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 #scr-cutscene.out #csVid{opacity:0;transition-duration:.25s}
 .cs-btn{position:absolute;bottom:max(14px,3.2vh);display:flex;align-items:center;gap:.45em;font-family:var(--display);font-size:clamp(13px,2.4vh,18px);letter-spacing:.04em;text-transform:uppercase;color:#fff;background:rgba(8,7,12,.62);border:2px solid rgba(255,255,255,.45);padding:.42em .95em;transform:skewX(-10deg);cursor:pointer;opacity:.85;transition:opacity .15s,border-color .15s}
 .cs-btn[hidden]{display:none}
+.cs-load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--display);font-size:clamp(16px,3vh,24px);letter-spacing:.08em;color:var(--gold)}
+.cs-load[hidden]{display:none}
+#scr-cutscene.out .cs-btn{display:none}
 .cs-btn:hover,.cs-btn:focus-visible{opacity:1;border-color:var(--gold);outline:none}
 .cs-btn .ic{width:1.1em;height:1.1em}
 .cs-skip{right:max(16px,env(safe-area-inset-right))}
@@ -546,6 +549,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
   <section id="scr-cutscene" class="screen" hidden>
     <video id="csVid" playsinline webkit-playsinline preload="none" disablepictureinpicture disableremoteplayback></video>
     <button class="cs-btn cs-sound" id="csSound" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg><span>Tap for sound</span></button>
+    <div class="cs-load" id="csLoad" hidden>LOADING…</div>
     <button class="cs-btn cs-skip" id="csSkip"><span>Skip</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5l7 7-7 7M13 5l7 7-7 7"/></svg></button>
   </section>
 
@@ -2141,8 +2145,8 @@ function lockPick(){
   sel.picks.push(sel.cursor);
   if(sel.mode==='boss'){
     const me=ROSTER[sel.picks[0]], b=bossCh(); sel.stageId=BOSS_STAGE;
-    ensureFighter(me); ensureFighter(b);   /* load both fighters while the intro plays */
-    playCutscene(()=>{ wantSong(songFor(BOSS_STAGE)); goVS(me,b); }); return;
+    prepMatch(me,b,true);   /* load both fighters while the intro plays */
+    playCutscene(beginMatch); return;   /* the intro leads straight into the fight */
   }
   if(sel.mode==='arcade'){
     const me=sel.picks[0]; const order=ROSTER.map((_,i)=>i).filter(i=>i!==me).sort(()=>Math.random()-0.5);
@@ -2164,7 +2168,7 @@ function playCutscene(done){
   const v=$('csVid'); cut.on=true; cut.started=false; cut.done=done; cut.t0=performance.now();
   if(!v.getAttribute('src')) v.src=BOSS_INTRO;
   try{ v.currentTime=0; }catch(e){}
-  v.muted=!settings.sound; v.volume=1; v.classList.remove('on'); $('scr-cutscene').classList.remove('out'); $('csSound').hidden=true;
+  v.muted=!settings.sound; v.volume=1; v.classList.remove('on'); $('scr-cutscene').classList.remove('out'); $('csSound').hidden=true; $('csLoad').hidden=true;
   show('cutscene'); songPause(); try{ speechSynthesis.cancel(); }catch(e){}
   preloadSong(songFor(BOSS_STAGE));
   const p=v.play();   /* called straight from the tap / key press, so the scene can play with sound */
@@ -2233,10 +2237,14 @@ function pickStage(){
   goVS(ROSTER[sel.picks[0]],ROSTER[sel.picks[1]]);
 }
 let vsTimer=null, pendingMatch=null;
-function goVS(c1,c2){
-  const pm={c1,c2,ready:false,go:false}; pendingMatch=pm; if(smallSheets()) dropSelSheets(null);
+function prepMatch(c1,c2,direct){
+  const pm={c1,c2,ready:false,go:false,direct:!!direct}; pendingMatch=pm; if(smallSheets()) dropSelSheets(null);
   for(const c of [c1,c2]) if(c.anim&&c._small!==smallSheets()) unloadFighter(c);   /* quality changed: reload at the new size */
   Promise.race([Promise.all([ensureFighter(c1),ensureFighter(c2)]),new Promise(r=>setTimeout(r,20000))]).then(()=>{ pm.ready=true; if(pm.go&&pendingMatch===pm) beginMatch(); });
+  return pm;
+}
+function goVS(c1,c2){
+  prepMatch(c1,c2);
   const v=$('scr-vs'); v.style.setProperty('--c1',c1.color); v.style.setProperty('--c2',c2.color);
   $('vsImg1').src=IMG_SRC[c1.id]; $('vsImg2').src=IMG_SRC[c2.id]; $('vsNm1').textContent=c1.name; $('vsNm2').textContent=c2.name;
   $('vsImg2').style.filter=c1===c2?'drop-shadow(0 14px 14px rgba(0,0,0,.7)) hue-rotate(220deg) saturate(.6) brightness(.85)':'';
@@ -2251,8 +2259,8 @@ function goVS(c1,c2){
   clearTimeout(vsTimer); vsTimer=setTimeout(beginMatch,2600);
 }
 function beginMatch(){
-  clearTimeout(vsTimer); if(!pendingMatch||current!=='vs') return;
-  if(!pendingMatch.ready){ pendingMatch.go=true; $('vsStage').textContent='LOADING…'; return; }
+  clearTimeout(vsTimer); if(!pendingMatch||current!==(pendingMatch.direct?'cutscene':'vs')) return;
+  if(!pendingMatch.ready){ pendingMatch.go=true; if(pendingMatch.direct) $('csLoad').hidden=false; else $('vsStage').textContent='LOADING…'; return; }
   if(sel.mode==='online'){ netReady(); return; }
   const {c1,c2}=pendingMatch; pendingMatch=null;
   for(const ch of ROSTER) if(ch!==c1&&ch!==c2) unloadFighter(ch);   /* free the other fighters' sheets */
@@ -2362,7 +2370,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='73395767ee', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='e4b23e9a1e', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

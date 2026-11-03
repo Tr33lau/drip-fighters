@@ -198,6 +198,89 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
   .t-left{gap:8px;width:min(42vw,380px)}
 }
 
+/* ===== Fight Draco: boss character select ===== */
+#scr-bsel{padding:0;display:grid;grid-template-rows:minmax(0,1fr) auto auto;grid-template-columns:minmax(0,1fr);align-items:stretch;justify-items:stretch;background:#07060b;overflow:hidden;--th:min(19vh,15vw)}
+#scr-bsel>*{min-width:0}
+.bs-art{position:absolute;left:0;right:0;top:0;height:74%;background:url(sprites/boss_sel_art.webp) 50% 16%/cover no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent 99%);mask-image:linear-gradient(180deg,#000 70%,transparent 99%)}
+.bs-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,6,11,.62),rgba(7,6,11,.08) 32%,rgba(7,6,11,0) 60%,rgba(7,6,11,.5)),linear-gradient(0deg,rgba(7,6,11,.35),transparent 30%)}
+.bs-floor{position:absolute;left:0;right:0;bottom:0;height:42%;background:radial-gradient(40% 60% at 12% 100%,rgba(255,40,70,.22),transparent 70%),radial-gradient(40% 60% at 88% 100%,rgba(40,110,255,.24),transparent 70%),linear-gradient(180deg,transparent,rgba(7,6,11,.55) 40%,rgba(7,6,11,.85));pointer-events:none}
+.bs-main{position:relative;grid-row:1}
+.bs-left{position:absolute;left:max(14px,2.2vw);top:max(8px,1.6vh);width:min(37vw,600px);display:flex;flex-direction:column;align-items:flex-start;gap:min(1.2vh,10px)}
+.bs-logo{position:relative;display:flex;flex-direction:column;align-items:flex-start;line-height:.86;transform:skewX(-9deg) rotate(-3deg);padding-top:min(4.6vh,3vw)}
+.bs-logo-crown{position:absolute;top:0;left:52%;width:min(7.4vh,4.6vw);color:#f6c64f;filter:drop-shadow(0 0 8px rgba(242,193,78,.6))}
+.bs-l1{font-family:var(--display);font-size:min(7.6vh,4.7vw);letter-spacing:.01em;background:linear-gradient(180deg,#fff 0%,#eef0f5 38%,#9aa0ad 52%,#f5f6f9 60%,#c9cdd6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:.02em #15121c;filter:drop-shadow(0 .05em 0 #000) drop-shadow(0 0 .2em rgba(255,255,255,.25));padding-left:.12em}
+.bs-l2{position:relative;font-family:var(--display);font-size:min(15.4vh,9.4vw);letter-spacing:-.01em;margin-top:-.04em}
+.bs-l2 .bs-nm{display:inline-block;white-space:nowrap;background:linear-gradient(180deg,#ff8c8c 0%,#ff2a3a 34%,#d40018 62%,#7d0010 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:.022em #2a0006;filter:drop-shadow(0 .035em 0 #fff) drop-shadow(0 .06em 0 #000) drop-shadow(0 0 .16em rgba(255,30,60,.65))}
+.bs-l2 .drips{bottom:.1em}
+.bs-l2 .drip{background:linear-gradient(180deg,#8a0010,#e0101e 50%,#ff5a66)}
+.bs-l2 .drip::after{background:#ff5a66}
+.bs-cs{margin-top:min(2vh,14px);padding:.32em 1.3em .3em .9em;background:linear-gradient(180deg,#ffe36b,#ffc21c 55%,#e99a00);clip-path:polygon(2% 14%,100% 0,96% 52%,99% 100%,0 90%,3% 50%);transform:skewX(-10deg) rotate(-1.5deg);box-shadow:0 0 18px rgba(255,194,28,.4)}
+.bs-cs span{display:block;font-family:var(--display);font-size:min(4.3vh,2.6vw);color:#160f02;text-transform:uppercase;letter-spacing:.01em;transform:skewX(4deg)}
+.bs-tag{position:relative;margin:min(1vh,8px) 0 0 1.6em;font-family:var(--body);font-weight:800;font-style:italic;text-transform:uppercase;letter-spacing:.2em;line-height:1.35;font-size:min(2.6vh,1.6vw);color:#fff;text-shadow:0 2px 4px #000}
+.bs-tag::after{content:"";display:block;margin-top:.45em;width:85%;height:.32em;background:linear-gradient(90deg,#ff2a3a,rgba(255,42,58,.1));clip-path:polygon(0 30%,100% 0,92% 100%,0 80%)}
+.bs-top{position:absolute;top:max(10px,2vh);right:max(14px,2.2vw)}
+.bs-right{position:absolute;right:max(14px,2.6vw);top:max(54px,9.5vh);width:min(37vw,600px);display:flex;flex-direction:column;align-items:center;text-align:center}
+.bs-rcrown{position:absolute;left:-2%;top:-3.6vh;width:min(12vh,7.4vw);color:#f6c64f;transform:rotate(-16deg);filter:drop-shadow(0 0 10px rgba(242,193,78,.55));z-index:1}
+.bs-yf{align-self:flex-end;margin-right:4%;padding:.22em 1.1em .2em .9em;background:linear-gradient(90deg,#8d000f,#ff1f33 30%,#e0001a 75%,#6e000c);clip-path:polygon(3% 10%,100% 0,97% 55%,100% 100%,0 92%,2% 45%);transform:skewX(-10deg)}
+.bs-yf span{display:block;font-family:var(--display);font-size:min(3.6vh,2.2vw);color:#fff;text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.45);transform:skewX(4deg)}
+.bs-namebox{position:relative;padding:.04em .32em .02em;margin-top:-.06em}
+.bs-namebox::before{content:"";position:absolute;left:2%;right:0;top:16%;bottom:6%;border:2px solid #ff2b3d;box-shadow:0 0 16px rgba(255,43,61,.65),inset 0 0 16px rgba(255,43,61,.35);transform:skewX(-14deg);background:linear-gradient(90deg,rgba(80,0,10,.35),rgba(20,0,6,.15))}
+.bs-name{position:relative;display:inline-block;font-family:var(--display);font-size:min(15vh,9.2vw);line-height:1;white-space:nowrap;background:linear-gradient(180deg,#fff 0%,#eceef3 30%,#8e94a2 50%,#f3f5f9 54%,#b8bdc8 78%,#fdfdfe 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:.018em #1a0a10;transform:skewX(-10deg);filter:drop-shadow(0 .04em 0 #7a0b16) drop-shadow(0 .07em 0 #000) drop-shadow(0 0 .14em rgba(255,40,60,.5))}
+.bs-final{display:flex;align-items:center;gap:.55em;margin-top:min(1.2vh,10px);padding:.26em 1.2em;background:linear-gradient(90deg,rgba(110,0,12,.95),#e0001a 25%,#ff1f33 50%,#e0001a 75%,rgba(110,0,12,.95));clip-path:polygon(2% 12%,100% 0,98% 60%,100% 100%,0 90%,1% 40%);transform:skewX(-8deg);font-family:var(--display);font-size:min(4.3vh,2.6vw);text-transform:uppercase;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.45)}
+.bs-final>*{transform:skewX(8deg)}
+.bs-final .bs-crown-ic{width:1.15em;color:#ffd04a;flex:none}
+.bs-diff{margin-top:min(.9vh,8px);font-family:var(--body);font-weight:800;font-style:italic;text-transform:uppercase;letter-spacing:.1em;font-size:min(2.8vh,1.75vw);color:#fff;text-shadow:0 2px 3px #000}
+.bs-diff b{color:#ff2a3a;font-weight:800}
+.bs-stats{margin-top:min(1.2vh,10px);display:grid;grid-template-columns:auto auto;align-items:center;column-gap:1.1em;row-gap:.38em;padding:.75em 1.5em;background:rgba(10,6,14,.72);border:2px solid #ff2b3d;box-shadow:0 0 16px rgba(255,43,61,.5),inset 0 0 18px rgba(255,43,61,.18);transform:skewX(-8deg);font-size:min(2.5vh,1.55vw)}
+.bs-stats>*{transform:skewX(8deg)}
+.bs-stats .lb{font-family:var(--display);text-transform:uppercase;color:#fff;text-align:right;letter-spacing:.02em}
+.bs-stats .bar{display:flex;gap:.22em}
+.bs-stats .bar i{display:block;width:1.9em;height:.78em;transform:skewX(-20deg);background:rgba(255,255,255,.12)}
+.bs-stats .bar i.on{background:linear-gradient(180deg,#fff1a6,#ffc21c 55%,#d98a00);box-shadow:0 0 6px rgba(255,194,28,.5)}
+.bs-stats .mv{grid-column:1/-1;font-family:var(--body);font-weight:700;color:#c9c3d6;font-size:.9em;letter-spacing:.04em;text-align:center}
+.bs-stats .mv b{color:#ffcf4a;font-weight:800}
+.bs-row{grid-row:2;position:relative;display:flex;align-items:center;justify-content:center;gap:min(1.6vw,18px);padding:0 2vw min(1.4vh,10px)}
+.bs-tiles{display:flex;gap:min(1.4vw,16px);padding-top:8px}
+.bs-tile{position:relative;height:var(--th);aspect-ratio:.86;padding:0;border:2px solid rgba(150,170,255,.38);background:linear-gradient(180deg,#1d2444,#090b17);transform:skewX(-6deg);overflow:hidden;cursor:pointer;box-shadow:0 10px 20px rgba(0,0,0,.55);transition:transform .12s,box-shadow .15s,border-color .15s}
+.bs-tile img{position:absolute;top:0;left:-12%;width:124%;height:100%;object-fit:cover;object-position:top;transform:skewX(6deg)}
+.bs-tile .nm{position:absolute;left:0;right:0;bottom:0;padding:1.3em 0 .35em;text-align:center;font-family:var(--display);font-size:min(2.5vh,1.7vw);color:#fff;text-shadow:0 2px 0 #000;background:linear-gradient(0deg,rgba(0,0,0,.95) 30%,transparent);transform:skewX(6deg)}
+.bs-tile:hover{border-color:rgba(255,255,255,.7)}
+.bs-tile.sel{border-color:#ff3b4e;box-shadow:0 0 0 2px #ff3b4e,0 0 28px rgba(255,59,78,.8),0 10px 20px rgba(0,0,0,.55);transform:skewX(-6deg) translateY(-6px) scale(1.05);z-index:1}
+.bs-arrow{background:none;border:none;color:#ffc21c;font-family:var(--display);font-size:min(9vh,6vw);line-height:1;cursor:pointer;text-shadow:0 0 14px rgba(255,194,28,.6);padding:0 4px}
+.bs-foot{grid-row:3;position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 max(16px,2.4vw) max(12px,2.4vh)}
+.bs-btn{min-width:min(17vw,240px);padding:.5em 1.4em;font-family:var(--display);font-size:min(3.2vh,2vw);text-transform:uppercase;color:#fff;background:rgba(8,7,12,.85);border:2px solid rgba(255,255,255,.8);transform:skewX(-14deg);cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.5)}
+.bs-btn>*{display:block;transform:skewX(14deg)}
+.bs-btn:hover,.bs-btn:focus-visible{border-color:#ffc21c;color:#ffc21c;outline:none}
+.bs-go{display:flex;align-items:center;gap:.6em;padding:.34em .4em .34em 1.1em;font-family:var(--display);font-size:min(5vh,3vw);text-transform:uppercase;color:#160f02;background:linear-gradient(180deg,#fff0a0,#ffc21c 48%,#e39200);border:2px solid #fff3c4;clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);cursor:pointer;box-shadow:0 0 34px rgba(255,194,28,.5);transition:filter .15s}
+.bs-go:hover,.bs-go:focus-visible{filter:brightness(1.1);outline:none}
+.bs-go:active{filter:brightness(.95)}
+.bs-fist{width:1.25em;height:1.25em;color:#160f02}
+.bs-go-a{display:grid;place-items:center;align-self:stretch;margin-left:.3em;padding:0 .55em;border-left:2px solid rgba(22,15,2,.35)}
+.bs-go-a svg{width:.8em;height:.8em}
+@media (orientation:landscape) and (max-height:460px){
+  .bs-stats .mv{display:none}
+  .bs-right{top:max(44px,11vh)}
+  .bs-top .p1badge{font-size:12px;padding:4px 12px}
+}
+@media (orientation:portrait){
+  #scr-bsel{--th:min(15vh,20vw)}
+  .bs-art{height:60%;background-position:40% 0}
+  .bs-main{display:flex;flex-direction:column;justify-content:space-between;padding:max(10px,1.6vh) 14px 0}
+  .bs-left,.bs-right,.bs-top{position:relative;left:auto;right:auto;top:auto;width:auto}
+  .bs-top{display:none}
+  .bs-l1{font-size:7.4vw}.bs-l2{font-size:15vw}.bs-logo-crown{width:8vw}.bs-logo{padding-top:5vw}
+  .bs-cs span{font-size:4.4vw}.bs-tag{font-size:2.9vw}
+  .bs-right{align-self:stretch;margin-bottom:1vh}
+  .bs-rcrown{display:none}
+  .bs-yf{align-self:center;margin:0}.bs-yf span{font-size:3.8vw}
+  .bs-name{font-size:14vw}.bs-final{font-size:4.6vw}.bs-diff{font-size:3.3vw}.bs-stats{font-size:3.1vw}
+  .bs-tiles{display:grid;grid-template-columns:repeat(2,auto)}
+  .bs-tile .nm{font-size:3.4vw}
+  .bs-arrow{display:none}
+  .bs-foot{flex-wrap:wrap;justify-content:center}
+  .bs-go{order:-1;width:100%;justify-content:center;font-size:5.4vw}
+  .bs-btn{min-width:0;flex:1;font-size:3.8vw}
+}
 /* ===== character select ===== */
 #scr-select{padding:0;display:grid;grid-template-columns:minmax(0,27fr) minmax(0,46fr) minmax(0,27fr);background:#07060b;gap:0;align-items:stretch;justify-items:stretch}
 .cs-bg{position:absolute;inset:0;background:radial-gradient(45% 70% at 0% 60%,rgba(220,30,50,.5),transparent 70%),radial-gradient(45% 70% at 100% 60%,rgba(30,110,255,.5),transparent 70%),linear-gradient(180deg,rgba(7,6,11,.62),rgba(7,6,11,.9)),url(stages/ceo_office.webp) center/cover}
@@ -555,6 +638,32 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
     </div>
   </section>
 
+  <section id="scr-bsel" class="screen" hidden>
+    <div class="bs-art"></div>
+    <div class="bs-floor"></div>
+    <div class="bs-main">
+      <div class="bs-left">
+        <div class="bs-logo"><svg class="bs-logo-crown" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 38 L4 12 L20 24 L32 4 L44 24 L60 12 L56 38 Z"/><circle cx="4" cy="10" r="3"/><circle cx="32" cy="3" r="3"/><circle cx="60" cy="10" r="3"/></svg><span class="bs-l1">FIGHTING</span><span class="bs-l2"><span class="bs-nm">DRACO</span><span class="drips"></span></span></div>
+        <div class="bs-cs"><span>Character select</span></div>
+        <p class="bs-tag">Choose your fighter<br>to take on <span class="bs-nm2">Draco</span></p>
+      </div>
+      <div class="bs-top"><div class="p1badge"><svg class="ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.3"/><path d="M3.5 21.5c0-4.7 3.8-8.3 8.5-8.3s8.5 3.6 8.5 8.3z"/></svg><span>Player 1</span></div></div>
+      <div class="bs-right">
+        <svg class="bs-rcrown" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 38 L4 12 L20 24 L32 4 L44 24 L60 12 L56 38 Z"/><circle cx="4" cy="10" r="3"/><circle cx="32" cy="3" r="3"/><circle cx="60" cy="10" r="3"/></svg>
+        <div class="bs-yf"><span>You&rsquo;re fighting:</span></div>
+        <div class="bs-namebox"><span class="bs-name bs-nm" id="bsName">DRACO</span></div>
+        <div class="bs-final"><svg class="bs-crown-ic" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 38 L4 12 L20 24 L32 4 L44 24 L60 12 L56 38 Z"/><circle cx="4" cy="10" r="3"/><circle cx="32" cy="3" r="3"/><circle cx="60" cy="10" r="3"/></svg><span>Final boss</span><svg class="bs-crown-ic" viewBox="0 0 64 44" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 38 L4 12 L20 24 L32 4 L44 24 L60 12 L56 38 Z"/><circle cx="4" cy="10" r="3"/><circle cx="32" cy="3" r="3"/><circle cx="60" cy="10" r="3"/></svg></div>
+        <div class="bs-diff">Difficulty: <b>Hard</b></div>
+        <div class="bs-stats" id="bsStats"></div>
+      </div>
+    </div>
+    <div class="bs-row"><button class="bs-arrow" id="bsPrev" aria-label="Previous fighter">&#8249;</button><div class="bs-tiles" id="bsTiles"></div><button class="bs-arrow" id="bsNext" aria-label="Next fighter">&#8250;</button></div>
+    <div class="bs-foot">
+      <button class="bs-btn" id="bsBack"><span>Back</span></button>
+      <button class="bs-go" id="bsGo"><svg class="ic bs-fist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M6.5 10V7.3a1.6 1.6 0 0 1 3.2 0V10M9.7 9.6V6.4a1.6 1.6 0 0 1 3.2 0v3.2M12.9 9.6V6.9a1.6 1.6 0 0 1 3.2 0V10M16.1 10V8.6a1.6 1.6 0 0 1 3.2 0v5.2a7.2 7.2 0 0 1-7.2 7.2h-.9a6.2 6.2 0 0 1-6.2-6.2v-2.3a2 2 0 0 1 2-2h4.1a2 2 0 0 1 0 4H9.5"/></svg><span class="bs-go-t">Confirm fighter</span><i class="bs-go-a"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg></i></button>
+      <button class="bs-btn" id="bsRandom"><span>Random</span></button>
+    </div>
+  </section>
   <section id="scr-stage" class="screen" hidden>
     <div class="sel-head">
       <h2>Choose a stage</h2>
@@ -2061,6 +2170,7 @@ let current='title';
 function show(id){
   current=id; if(gp.active&&id&&id!=='select'&&id!=='stage'&&id!=='vs'&&id!=='cutscene') setTimeout(()=>{ const L=menuFocusables(); if(L.length&&!L.includes(document.activeElement)) L[0].focus({preventScroll:true}); },60);
   for(const s of SCREENS) $('scr-'+s).hidden=(s!==id);
+  const bsel=id==='select'&&sel.mode==='boss'; if(bsel) $('scr-select').hidden=true; $('scr-bsel').hidden=!bsel;   /* Fight Draco has its own select screen */
   const fighting=id===null&&game.mode!=='demo';
   game.menu=!fighting;
   $('pad').hidden=!(fighting&&isTouch&&!gp.active);
@@ -2079,7 +2189,9 @@ function setModes(open){ const m=$('modes'); m.hidden=!open; $('playBtn').setAtt
   if(open&&(finePointer||gp.active)){ const f=m.querySelector('.mcard:not([hidden])'); if(f) f.focus({preventScroll:true}); } }
 function closeModes(){ if($('modes').hidden) return; setModes(false); sfx.ui(); $('playBtn').focus({preventScroll:true}); }
 const sel={mode:null,step:0,cursor:0,picks:[]};
-function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; if(mode==='boss'){ cutPrime(); preloadSong(songFor(BOSS_STAGE)); } show('select'); renderSelect(); }
+function chooseMode(mode){ sfx.confirm(); wantSong(mode==='boss'?songFor(BOSS_STAGE):'splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0;
+  if(mode==='boss'){ cutPrime(); sel.cursor=bossPicks()[0]; }   /* Yahhh starts as soon as the mode is picked */
+  show('select'); renderSelect(); }
 let FIG_ASPECT=0.66;   /* widest fighter picture (width / height), measured at boot */
 function fitFigure(box,img){
   if(!box||!img||box.offsetParent===null) return;
@@ -2131,6 +2243,7 @@ function renderSide(s){
   $('csMoves'+n).innerHTML=`Special <b>${f.spName}</b> · Super <b>${f.suName}</b>`;
 }
 function renderSelect(){
+  if(sel.mode==='boss'){ renderBossSel(); return; }
   const two=sel.mode==='2p';
   if(sel.mode==='online'){ $('selTitle').innerHTML=NET.myPick==null?'<em>Online</em> · Character select':(NET.oppPick==null?'Waiting for opponent…':(NET.role==='host'?'Choose the stage':'Opponent is picking the stage…'));
     renderSide(0); renderSide(1); drawSelIdle(performance.now()); const p1=NET.myPick??sel.cursor, p2=NET.oppPick??-1;
@@ -2190,6 +2303,32 @@ function lockPick(){
 /* ---- Fight Draco (boss mode): your pick vs Draco on his court, Hard CPU, opens with his intro scene ---- */
 const BOSS_ID='draco', BOSS_STAGE='crank', BOSS_LEVEL=2, BOSS_INTRO='cutscenes/draco_intro.mp4';
 const bossCh=()=>ROSTER.find(c=>c.id===BOSS_ID)||ROSTER[ROSTER.length-1];
+const bossPicks=()=>ROSTER.map((c,i)=>i).filter(i=>ROSTER[i]!==bossCh());
+function selMove(d){ if(sel.mode==='boss'){ const L=bossPicks(), k=L.indexOf(sel.cursor); sel.cursor=L[((k<0?0:k+d)%L.length+L.length)%L.length]; }
+  else sel.cursor=(sel.cursor+d+ROSTER.length)%ROSTER.length; sfx.ui(); renderSelect(); }
+function bindBossSel(){
+  const g=$('bsTiles');
+  bossPicks().forEach(i=>{ const ch=ROSTER[i], b=document.createElement('button'); b.className='bs-tile'; b.dataset.i=i;
+    b.innerHTML=`<img src="${IMG_SRC[ch.id+'_face']}" alt=""><span class="nm"></span>`;
+    b.addEventListener('click',()=>{ audioInit(); if(sel.cursor===i&&!isTouch){ lockPick(); return; } sel.cursor=i; sfx.ui(); renderBossSel(); });
+    b.addEventListener('dblclick',()=>lockPick()); g.appendChild(b); });
+  $('bsPrev').addEventListener('click',()=>{ audioInit(); selMove(-1); });
+  $('bsNext').addEventListener('click',()=>{ audioInit(); selMove(1); });
+  $('bsGo').addEventListener('click',()=>{ audioInit(); lockPick(); });
+  $('bsRandom').addEventListener('click',()=>{ audioInit(); sel.cursor=pick(bossPicks()); renderBossSel(); lockPick(); });
+  $('bsBack').addEventListener('click',()=>{ audioInit(); sfx.ui(); goTitle(); });
+}
+function renderBossSel(){
+  const b=bossCh();
+  document.querySelectorAll('#bsTiles .bs-tile').forEach(t=>{ const i=+t.dataset.i, ch=ROSTER[i], on=i===sel.cursor; t.classList.toggle('sel',on); t.setAttribute('aria-pressed',String(on)); t.setAttribute('aria-label',ch.name); t.querySelector('.nm').textContent=ch.name; });
+  document.querySelectorAll('#scr-bsel .bs-nm').forEach(e=>e.textContent=b.name);
+  document.querySelectorAll('#scr-bsel .bs-nm2').forEach(e=>e.textContent=b.name.charAt(0)+b.name.slice(1).toLowerCase());
+  $('bsStats').innerHTML=['Power','Speed','Health'].map((l,k)=>`<span class="lb">${l}</span><span class="bar">${[0,1,2,3,4].map(n=>`<i class="${n<b.stats[k]?'on':''}"></i>`).join('')}</span>`).join('')
+    +`<span class="mv">Special <b>${b.spName}</b> · Super <b>${b.suName}</b></span>`;
+  fitBossNames();
+}
+function fitBossNames(){ requestAnimationFrame(()=>{ for(const [el,box] of [[$('bsName'),document.querySelector('.bs-right')],[document.querySelector('.bs-l2 .bs-nm'),document.querySelector('.bs-left')]]){
+  if(!el||!box) continue; el.style.fontSize=''; const max=box.clientWidth*0.92, w=el.offsetWidth; if(w>max&&w>0) el.style.fontSize=(parseFloat(getComputedStyle(el).fontSize)*max/w)+'px'; } }); }
 function syncBossName(){ const el=$('bossNm'); if(el) el.textContent=bossCh().name; const f=$('bossFace'); if(f&&!f.src) f.src=IMG_SRC[bossCh().id+'_face']; }
 const cut={on:false,started:false,t0:0,done:null,timer:null,cap:null};
 function cutPrime(){ const v=$('csVid'); if(!v.getAttribute('src')){ v.preload='auto'; v.src=BOSS_INTRO; try{ v.load(); }catch(e){} } }   /* start buffering on the select screen */
@@ -2402,7 +2541,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='ed3e415cba', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='f49c7413cd', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2601,8 +2740,9 @@ function bindUI(){
   const openOpts=()=>{ audioInit(); sfx.ui(); show('options'); };
   $('optBtn').addEventListener('click',openOpts); $('gearBtn').addEventListener('click',openOpts);
   $('optClose').addEventListener('click',()=>{ sfx.ui(); show('title'); });
-  $('selPrev').addEventListener('click',()=>{ audioInit(); if(renaming) return; sel.cursor=(sel.cursor+ROSTER.length-1)%ROSTER.length; sfx.ui(); renderSelect(); });
-  $('selNext').addEventListener('click',()=>{ audioInit(); if(renaming) return; sel.cursor=(sel.cursor+1)%ROSTER.length; sfx.ui(); renderSelect(); });
+  $('selPrev').addEventListener('click',()=>{ audioInit(); if(renaming) return; selMove(-1); });
+  $('selNext').addEventListener('click',()=>{ audioInit(); if(renaming) return; selMove(1); });
+  bindBossSel();
   $('helpBtn').addEventListener('click',()=>{ audioInit(); show('help'); });
   $('helpClose').addEventListener('click',()=>{ show('title'); });
   $('stgBack').addEventListener('click',()=>{ audioInit(); sfx.ui(); if(sel.mode==='online'){ NET.myPick=null; netSend({t:'pick',id:null}); show('select'); renderSelect(); return; } sel.cursor=sel.picks.pop()??0; sel.step=1; show('select'); renderSelect(); });
@@ -2640,8 +2780,8 @@ function bindUI(){
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(code)&&current!=='help') e.preventDefault();
     if(current==='select'){
       if(sel.mode==='online'&&NET.myPick!=null){ if(code==='Escape') $('selBack').click(); return; }
-      if(code==='ArrowRight'||code==='KeyD'){ sel.cursor=(sel.cursor+1)%ROSTER.length; sfx.ui(); renderSelect(); }
-      else if(code==='ArrowLeft'||code==='KeyA'){ sel.cursor=(sel.cursor+ROSTER.length-1)%ROSTER.length; sfx.ui(); renderSelect(); }
+      if(code==='ArrowRight'||code==='KeyD') selMove(1);
+      else if(code==='ArrowLeft'||code==='KeyA') selMove(-1);
       else if(code==='Enter'||code==='KeyJ'||code==='KeyF'){ e.preventDefault(); lockPick(); }
       else if(code==='Escape') $('selBack').click();
       return;
@@ -2669,7 +2809,7 @@ function bindUI(){
   addEventListener('blur',()=>{ keys.clear(); for(const b in touchIn) touchIn[b]=false; });
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&cut.on){ const v=$('csVid'); if(v.paused&&!v.ended) v.play().catch(()=>{}); }
     if(document.hidden){ pauseGame(); if(AU.ctx) AU.ctx.suspend().catch(()=>{}); } else if(AU.ctx) AU.ctx.resume().catch(()=>{}); });
-  addEventListener('resize',()=>{ layout(); fitFigures(); });
+  addEventListener('resize',()=>{ layout(); fitFigures(); if(current==='select'&&sel.mode==='boss') fitBossNames(); });
   addEventListener('orientationchange',()=>setTimeout(layout,200));
   document.addEventListener('gesturestart',e=>e.preventDefault());
   document.addEventListener('dblclick',e=>e.preventDefault());

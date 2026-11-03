@@ -134,9 +134,34 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 .mbtn.play .ic{color:#140e04}
 .mbtn.play .slash{margin-left:auto;font-style:normal;font-size:.8em;opacity:.7;letter-spacing:-.1em}
 .mbtn.play[aria-expanded="true"]{filter:brightness(1.08)}
-.modes{display:flex;flex-direction:column;gap:inherit;padding-left:7%;animation:modesIn .22s ease-out both}
-.modes[hidden]{display:none}
-@keyframes modesIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.mpop{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:max(12px,2.4vh) 16px}
+.mpop[hidden]{display:none}
+.mpop-bg{position:absolute;inset:0;background:rgba(5,4,9,.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:popFade .18s ease-out both}
+.mpop-card{position:relative;width:min(660px,100%);max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:clamp(8px,1.6vh,14px);padding:clamp(12px,2.6vh,22px) clamp(14px,2.4vw,24px) clamp(14px,2.8vh,24px);background:linear-gradient(180deg,rgba(26,21,34,.97),rgba(11,10,16,.98));border:2px solid var(--gold);box-shadow:0 0 0 1px rgba(0,0,0,.7),0 24px 60px rgba(0,0,0,.65),0 0 44px rgba(242,193,78,.14);animation:popIn .24s cubic-bezier(.2,1.25,.4,1) both}
+.mpop-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mpop-head h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(18px,3.4vh,28px);text-transform:uppercase;letter-spacing:.02em;color:var(--gold);text-shadow:0 2px 0 #000}
+.mpop-x{display:grid;place-items:center;width:clamp(32px,5.4vh,40px);height:clamp(32px,5.4vh,40px);background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.28);color:#fff;cursor:pointer;flex:none}
+.mpop-x:hover{border-color:var(--gold);color:var(--gold)}
+.mpop-x .ic{width:58%;height:58%}
+.mpop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(8px,1.6vh,12px)}
+.mpop-grid>.mcard:last-child:nth-child(odd){grid-column:1/-1}
+.mcard{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:.8em;row-gap:.1em;align-items:center;text-align:left;padding:clamp(9px,1.9vh,14px) clamp(12px,1.6vw,16px);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.015));border:1.5px solid rgba(242,193,78,.38);color:#fff;cursor:pointer;overflow:hidden;transition:border-color .15s,background .15s,transform .1s}
+.mcard>.ic{grid-row:1/3;width:clamp(24px,4.6vh,34px);height:clamp(24px,4.6vh,34px);color:var(--gold)}
+.mc-t{font-family:var(--display);text-transform:uppercase;font-size:clamp(14px,2.7vh,20px);letter-spacing:.02em;line-height:1.1;align-self:end}
+.mc-t b{font-weight:inherit}
+.mc-d{font-weight:600;font-size:clamp(13px,2.4vh,17px);color:var(--muted);line-height:1.15;align-self:start}
+.mcard:hover,.mcard:focus-visible,body.gp .mcard:focus{border-color:var(--gold);background:linear-gradient(180deg,rgba(242,193,78,.16),rgba(242,193,78,.05));outline:none}
+.mcard:active{transform:translateY(1px)}
+.mcard.boss{min-height:clamp(58px,12vh,92px);padding-right:clamp(86px,22%,150px);border-color:#ff4b4b;background:linear-gradient(90deg,rgba(130,14,26,.62),rgba(46,10,20,.55) 60%,rgba(20,8,14,.4));box-shadow:inset 0 0 0 1px rgba(255,75,75,.2),0 0 22px rgba(255,75,75,.18)}
+.mcard.boss>.ic{color:#ff6b6b}
+.mcard.boss .mc-t{font-size:clamp(16px,3.2vh,24px)}
+.mcard.boss .mc-t b{color:#ff8a8a}
+.mcard.boss .mc-d{color:#e9c6cb}
+.mcard.boss:hover,.mcard.boss:focus-visible,body.gp .mcard.boss:focus{border-color:#ff8a8a;background:linear-gradient(90deg,rgba(160,18,32,.7),rgba(60,12,24,.6) 60%,rgba(24,8,14,.45))}
+.mc-face{position:absolute;right:0;top:0;height:100%;width:auto;max-width:40%;object-fit:cover;object-position:top;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 45%);mask-image:linear-gradient(90deg,transparent,#000 45%)}
+@keyframes popFade{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@media (max-width:480px){ .mpop-grid{grid-template-columns:minmax(0,1fr)} .mpop-grid>.mcard:last-child:nth-child(odd){grid-column:auto} }
 .mbtn:focus-visible,.cbtn:focus-visible,.iconbtn:focus-visible,.hbtn:focus-visible,.cs-arrow:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .t-corner{position:absolute;right:max(14px,2.2vw);bottom:max(14px,2.6vh);display:flex;gap:10px;z-index:4}
 .cbtn{padding:6px 14px;font-size:clamp(12px,2vh,16px);cursor:pointer}
@@ -160,7 +185,6 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
   .menu{align-items:center}
   .mbtn,.mbtn.play{margin-left:0;width:100%;max-width:400px;font-size:clamp(15px,4.6vw,22px)}
   .mbtn.play{font-size:clamp(24px,8vw,40px)}
-  .modes{padding-left:0;width:100%;align-items:center}
   .p1badge{display:none}
   .t-corner{top:max(14px,2.6vh);left:max(14px,4vw);right:auto;bottom:auto}
   .cbtn span{display:none}.cbtn{padding:7px 9px}
@@ -172,10 +196,6 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
   #scr-title .logo .l2{font-size:clamp(18px,5vh,30px)}
   .menu{gap:6px}.mbtn{font-size:clamp(13px,3.4vh,17px);padding:.38em 1em}.mbtn.play{font-size:clamp(20px,6.4vh,30px)}
   .t-left{gap:8px;width:min(42vw,380px)}
-  .modes-open .logo .crown{width:clamp(28px,6.4vh,48px)}
-  #scr-title.modes-open .logo .l1{font-size:clamp(38px,10.4vh,66px)}
-  #scr-title.modes-open .logo .l2{font-size:clamp(16px,4.2vh,26px)}
-  .modes .mbtn{padding:.3em 1em}
 }
 
 /* ===== character select ===== */
@@ -438,14 +458,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
         <p class="tag">Five fits. One crown.</p><i class="swoosh"></i>
       </div>
       <div class="menu">
-        <button class="mbtn play" id="playBtn" aria-expanded="false" aria-controls="modes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 0 1 4 4v3a3 3 0 0 1-5.4 1.8L15 15H9l-1.6 1.8A3 3 0 0 1 2 15v-3a4 4 0 0 1 4-4z"/><path d="M7 10.5v4M5 12.5h4"/><circle cx="16" cy="11.5" r=".9"/><circle cx="18.2" cy="13.6" r=".9"/></svg><span>Play</span><i class="slash">//</i></button>
-        <div class="modes" id="modes" hidden>
-          <button class="mbtn" data-mode="arcade"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h10v20H7z"/><path d="M9 5h6v5H9z"/><circle cx="10.2" cy="14" r="1"/><path d="M13 14h2.5M9 18h6"/></svg><span>Arcade</span></button>
-          <button class="mbtn boss" data-mode="boss" id="btnBoss"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5v19M5.6 5.2c2.9 2.4 2.9 11.2 0 13.6M18.4 5.2c-2.9 2.4-2.9 11.2 0 13.6"/></svg><span>Fight <b id="bossNm">DRACO</b></span></button>
-          <button class="mbtn" data-mode="versus"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.3 2.4-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17" cy="8.5" r="2.5"/><path d="M15.5 14.2c3.2.1 6 2.6 6 5.8"/></svg><span>Versus CPU</span></button>
-          <button class="mbtn" data-mode="2p" id="btn2p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="3"/><path d="M2 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="16.5" cy="8" r="3"/><path d="M11 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/></svg><span>2 Players</span></button>
-          <button class="mbtn" id="btnOnline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg><span>Online</span></button>
-        </div>
+        <button class="mbtn play" id="playBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="modes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 0 1 4 4v3a3 3 0 0 1-5.4 1.8L15 15H9l-1.6 1.8A3 3 0 0 1 2 15v-3a4 4 0 0 1 4-4z"/><path d="M7 10.5v4M5 12.5h4"/><circle cx="16" cy="11.5" r=".9"/><circle cx="18.2" cy="13.6" r=".9"/></svg><span>Play</span><i class="slash">//</i></button>
         <button class="mbtn" id="optBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11M18 7h3M3 17h4M11 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span>Options</span></button>
         <button class="mbtn" id="helpBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5c3.2-1.2 7-1 10 1 3-2 6.8-2.2 10-1v14c-3.2-1.2-7-1-10 1-3-2-6.8-2.2-10-1z"/><path d="M12 6v14"/></svg><span>How to play</span></button>
       </div>
@@ -453,6 +466,19 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
     <div class="t-corner">
       <button class="cbtn musBtn" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span>Music: On</span></button>
       <button class="cbtn sndBtn" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg><span>Sound: On</span></button>
+    </div>
+    <div class="mpop" id="modes" role="dialog" aria-modal="true" aria-labelledby="modesTtl" hidden>
+      <div class="mpop-bg" id="modesBg"></div>
+      <div class="mpop-card">
+        <div class="mpop-head"><h2 id="modesTtl">Choose a mode</h2><button class="mpop-x" id="modesX" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <button class="mcard boss" data-mode="boss" id="btnBoss"><img class="mc-face" id="bossFace" alt=""><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5v19M5.6 5.2c2.9 2.4 2.9 11.2 0 13.6M18.4 5.2c-2.9 2.4-2.9 11.2 0 13.6"/></svg><span class="mc-t">Fight <b id="bossNm">DRACO</b></span><span class="mc-d">Boss fight on The Court · Hard</span></button>
+        <div class="mpop-grid">
+          <button class="mcard" data-mode="arcade"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h10v20H7z"/><path d="M9 5h6v5H9z"/><circle cx="10.2" cy="14" r="1"/><path d="M13 14h2.5M9 18h6"/></svg><span class="mc-t">Arcade</span><span class="mc-d">Beat every fighter in a row</span></button>
+          <button class="mcard" data-mode="versus"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.3 2.4-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17" cy="8.5" r="2.5"/><path d="M15.5 14.2c3.2.1 6 2.6 6 5.8"/></svg><span class="mc-t">Versus CPU</span><span class="mc-d">One fight, any stage</span></button>
+          <button class="mcard" data-mode="2p" id="btn2p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="3"/><path d="M2 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="16.5" cy="8" r="3"/><path d="M11 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/></svg><span class="mc-t">2 Players</span><span class="mc-d">Two players, one screen</span></button>
+          <button class="mcard" id="btnOnline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg><span class="mc-t">Online</span><span class="mc-d">Fight a friend with a room code</span></button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2045,7 +2071,10 @@ function startDemo(){
   startMatch(pool[i],pool[j],new AI(1),new AI(1),pool[j].stage);
 }
 function goTitle(){ wantSong('splash.mp3'); game.mode='demo'; game.F=null; game.stage=null; setModes(false); show('title'); setTimeout(()=>{ const b=$('playBtn'); if(b&&finePointer) b.focus({preventScroll:true}); },50); }   /* menus are drawn over a still background: no fight runs behind them */
-function setModes(open){ $('modes').hidden=!open; $('scr-title').classList.toggle('modes-open',open); $('playBtn').setAttribute('aria-expanded',String(open)); }
+function setModes(open){ const m=$('modes'); m.hidden=!open; $('playBtn').setAttribute('aria-expanded',String(open));
+  for(const el of $('scr-title').children) if(el!==m) el.inert=open;   /* the popup is modal: nothing behind it takes focus or clicks */
+  if(open&&(finePointer||gp.active)){ const f=m.querySelector('.mcard:not([hidden])'); if(f) f.focus({preventScroll:true}); } }
+function closeModes(){ if($('modes').hidden) return; setModes(false); sfx.ui(); $('playBtn').focus({preventScroll:true}); }
 const sel={mode:null,step:0,cursor:0,picks:[]};
 function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; if(mode==='boss') cutPrime(); show('select'); renderSelect(); }
 let FIG_ASPECT=0.66;   /* widest fighter picture (width / height), measured at boot */
@@ -2158,7 +2187,7 @@ function lockPick(){
 /* ---- Fight Draco (boss mode): your pick vs Draco on his court, Hard CPU, opens with his intro scene ---- */
 const BOSS_ID='draco', BOSS_STAGE='crank', BOSS_LEVEL=2, BOSS_INTRO='cutscenes/draco_intro.mp4';
 const bossCh=()=>ROSTER.find(c=>c.id===BOSS_ID)||ROSTER[ROSTER.length-1];
-function syncBossName(){ const el=$('bossNm'); if(el) el.textContent=bossCh().name; }
+function syncBossName(){ const el=$('bossNm'); if(el) el.textContent=bossCh().name; const f=$('bossFace'); if(f&&!f.src) f.src=IMG_SRC[bossCh().id+'_face']; }
 const cut={on:false,started:false,t0:0,done:null,timer:null,cap:null};
 function cutPrime(){ const v=$('csVid'); if(!v.getAttribute('src')){ v.preload='auto'; v.src=BOSS_INTRO; try{ v.load(); }catch(e){} } }   /* start buffering on the select screen */
 function preloadSong(file){ if(!AU.ctx||AU.bufs[file]||AU.loadingSong===file) return; AU.loadingSong=file;
@@ -2319,7 +2348,7 @@ const GP_FIGHT={2:'p',3:'k',0:'k',1:'s',5:'x',7:'x',4:'x',6:'x'};   /* Square pu
 function padToast(t){ const el=$('padToast'); el.textContent=t; el.classList.remove('hide'); clearTimeout(gp.tt); gp.tt=setTimeout(()=>el.classList.add('hide'),2200); }
 function padRumble(m,ms){ if(!gp.active||!navigator.getGamepads) return; for(const p of navigator.getGamepads()) if(p&&p.vibrationActuator&&p.vibrationActuator.playEffect){ try{ p.vibrationActuator.playEffect('dual-rumble',{duration:ms,strongMagnitude:m,weakMagnitude:Math.min(1,m*0.8)}).catch(()=>{}); }catch(e){} } }
 function fakeKey(code){ dispatchEvent(new KeyboardEvent('keydown',{code,key:code==='Enter'?'Enter':code==='Escape'?'Escape':code,bubbles:true})); }
-function menuFocusables(){ const scr=$('scr-'+current); if(!scr) return [];
+function menuFocusables(){ let scr=$('scr-'+current); if(!scr) return []; if(current==='title'&&!$('modes').hidden) scr=$('modes');
   return [...scr.querySelectorAll('button,input')].filter(b=>!b.hidden&&!b.disabled&&b.offsetParent!==null&&!b.closest('[hidden]')); }
 function menuMove(dir){ const L=menuFocusables(); if(!L.length) return; const i=L.indexOf(document.activeElement); const n=i<0?0:(i+dir+L.length)%L.length; L[n].focus({preventScroll:true}); sfx.ui(); }
 function menuDir(dir){   /* dir: 'u','d','l','r' */
@@ -2329,7 +2358,7 @@ function menuOK(){
   if(current==='select'||current==='stage'||current==='vs'||current==='cutscene'){ fakeKey('Enter'); return; }
   const a=document.activeElement, L=menuFocusables(); if(a&&L.includes(a)) a.click(); else if(L.length) L[0].focus({preventScroll:true}); }
 function menuBack(){
-  if(current==='title'){ if(!$('modes').hidden){ setModes(false); $('playBtn').focus({preventScroll:true}); } return; }
+  if(current==='title'){ closeModes(); return; }
   if(current==='pause'){ resumeGame(); return; }
   if(current==='result') return;
   fakeKey('Escape'); }
@@ -2370,7 +2399,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='e4b23e9a1e', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='007a9d8066', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2549,7 +2578,7 @@ function resumeGame(){ if(NET.running){ show(null); return; } game.paused=false;
 /* ================= EVENTS ================= */
 function bindUI(){
   document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{ audioInit(); chooseMode(b.dataset.mode); }));
-  if(!finePointer&&isTouch) $('btn2p').hidden=true;
+  if(!finePointer&&isTouch) $('btn2p').remove();   /* touch-only device: one screen, no second player */
   const segs=document.querySelectorAll('[data-d]');
   const syncD=()=>segs.forEach(s=>s.setAttribute('aria-pressed',String(+s.dataset.d===settings.diff)));
   segs.forEach(s=>s.addEventListener('click',()=>{ audioInit(); settings.diff=+s.dataset.d; syncD(); saveSettings(); sfx.ui(); })); syncD();
@@ -2564,7 +2593,8 @@ function bindUI(){
     document.querySelectorAll('.musBtn').forEach(b=>{ b.setAttribute('aria-pressed',String(settings.music)); setTxt(b,b.classList.contains('cbtn')?(settings.music?'Music: On':'Music: Off'):(settings.music?'Music on':'Music off')); }); };
   document.querySelectorAll('.sndBtn').forEach(b=>b.addEventListener('click',()=>{ audioInit(); settings.sound=!settings.sound; applyAudioSettings(); syncS(); saveSettings(); sfx.ui(); }));
   document.querySelectorAll('.musBtn').forEach(b=>b.addEventListener('click',()=>{ audioInit(); settings.music=!settings.music; applyAudioSettings(); syncS(); saveSettings(); sfx.ui(); })); syncS();
-  $('playBtn').addEventListener('click',()=>{ audioInit(); const open=$('modes').hidden; setModes(open); sfx.ui(); if(open&&finePointer){ const f=$('modes').querySelector('.mbtn:not([hidden])'); if(f) f.focus({preventScroll:true}); } });
+  $('playBtn').addEventListener('click',()=>{ audioInit(); setModes(true); sfx.ui(); });
+  $('modesX').addEventListener('click',closeModes); $('modesBg').addEventListener('click',closeModes);
   const openOpts=()=>{ audioInit(); sfx.ui(); show('options'); };
   $('optBtn').addEventListener('click',openOpts); $('gearBtn').addEventListener('click',openOpts);
   $('optClose').addEventListener('click',()=>{ sfx.ui(); show('title'); });
@@ -2630,7 +2660,7 @@ function bindUI(){
     if(current==='help'&&code==='Escape'){ show('title'); }
     if(current==='options'&&code==='Escape'){ show('title'); }
     if(current==='online'&&code==='Escape'){ $('onBack').click(); }
-    if(current==='title'&&code==='Escape'&&!$('modes').hidden){ setModes(false); $('playBtn').focus({preventScroll:true}); }
+    if(current==='title'&&code==='Escape') closeModes();
   });
   addEventListener('keyup',e=>keys.delete(e.code));
   addEventListener('blur',()=>{ keys.clear(); for(const b in touchIn) touchIn[b]=false; });

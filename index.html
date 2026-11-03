@@ -64,6 +64,28 @@ button{font:inherit;color:inherit}
 #perfTip[hidden]{display:none}
 #padToast{position:absolute;left:50%;bottom:max(18px,4vh);transform:translateX(-50%);z-index:12;padding:8px 18px;border-radius:999px;background:rgba(11,11,16,.9);border:1px solid var(--gold);font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:14px;pointer-events:none;transition:opacity .4s}
 #padToast.hide{opacity:0}
+#netWait{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:11;padding:12px 22px;background:rgba(7,6,11,.86);border:2px solid var(--gold);font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;font-size:clamp(14px,2.6vh,20px);pointer-events:none}
+#netWait[hidden],#netPing[hidden]{display:none}
+#netPing{position:absolute;left:50%;transform:translateX(-50%);bottom:max(8px,1.2vh);z-index:9;font-weight:800;font-size:12px;letter-spacing:.08em;color:var(--muted);background:rgba(7,6,11,.6);padding:2px 8px;border-radius:999px;pointer-events:none}
+#scr-online{background:linear-gradient(180deg,rgba(7,6,11,.82),rgba(7,6,11,.94)),url(stages/ceo_office.webp) center/cover}
+#scr-online .logo{align-self:center}
+#scr-online .on-panel{box-sizing:border-box;width:min(440px,92vw);display:flex;flex-direction:column;padding:18px 20px;border:2px solid var(--gold);background:rgba(10,8,14,.85)}
+#scr-online .on-panel>*{transform:none}
+#scr-online .mbtn,#scr-online .mbtn.play{font-size:clamp(16px,2.6vh,22px)}
+#scr-online .mbtn.play{font-size:min(clamp(20px,3.4vh,30px),6.4vw);white-space:nowrap}
+#scr-online{justify-content:center;gap:16px}
+.on-panel .mbtn{margin-left:0;width:100%}
+.on-or{text-align:center;font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--muted);margin:14px 0 8px}
+.on-join{display:flex;gap:10px;align-items:stretch}
+.on-join input{flex:1;min-width:0;font-family:var(--display);font-size:24px;letter-spacing:.3em;text-transform:uppercase;text-align:center;color:#fff;background:rgba(0,0,0,.5);border:2px solid var(--gold);padding:6px;outline:none;transform:skewX(-12deg)}
+.on-join .mbtn{width:auto;flex:none}
+.on-label{text-align:center;font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+.on-code{text-align:center;font-family:var(--display);font-size:clamp(48px,11vh,84px);letter-spacing:.18em;color:var(--gold);text-shadow:0 0 24px rgba(242,193,78,.4)}
+#onRoom{display:flex;flex-direction:column;align-items:center;gap:8px}
+#onRoom[hidden],#onHome[hidden]{display:none}
+#onCopy{display:inline-flex;align-items:center;gap:6px}
+.on-status{min-height:1.4em;margin:12px 0 0;text-align:center;font-weight:700;letter-spacing:.04em;color:#fff}
+.on-status.err{color:#ff8a8a}
 body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 #perfTip .chip{font-size:12px;padding:5px 10px}
 .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center}
@@ -376,6 +398,8 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
   </div>
   <button id="pauseBtn" hidden aria-label="Pause">II</button>
   <div id="padToast" class="hide" role="status"></div>
+  <div id="netWait" hidden role="status">Waiting for opponent…</div>
+  <div id="netPing" hidden></div>
   <div id="perfTip" role="status" hidden><span>Running slow?</span><button class="chip" id="perfLower">Lower quality</button><button class="chip" id="perfX" aria-label="Dismiss">&#10005;</button></div>
 
   <section id="scr-title" class="screen" hidden>
@@ -398,6 +422,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
           <button class="mbtn" data-mode="arcade"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h10v20H7z"/><path d="M9 5h6v5H9z"/><circle cx="10.2" cy="14" r="1"/><path d="M13 14h2.5M9 18h6"/></svg><span>Arcade</span></button>
           <button class="mbtn" data-mode="versus"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><path d="M2.5 20c0-3.3 2.4-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="17" cy="8.5" r="2.5"/><path d="M15.5 14.2c3.2.1 6 2.6 6 5.8"/></svg><span>Versus CPU</span></button>
           <button class="mbtn" data-mode="2p" id="btn2p"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="8" r="3"/><path d="M2 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><circle cx="16.5" cy="8" r="3"/><path d="M11 20c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/></svg><span>2 Players</span></button>
+          <button class="mbtn" id="btnOnline"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg><span>Online</span></button>
         </div>
         <button class="mbtn" id="optBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11M18 7h3M3 17h4M11 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span>Options</span></button>
         <button class="mbtn" id="helpBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5c3.2-1.2 7-1 10 1 3-2 6.8-2.2 10-1v14c-3.2-1.2-7-1-10 1-3-2-6.8-2.2-10-1z"/><path d="M12 6v14"/></svg><span>How to play</span></button>
@@ -423,6 +448,24 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
       <button class="chip" id="s3dBtn" aria-pressed="true" hidden>3D stage</button>
     </div>
     <button class="btn primary" id="optClose"><span>Done</span></button>
+  </section>
+
+  <section id="scr-online" class="screen dim" hidden>
+    <div class="logo sm"><span class="l2">ONLINE</span></div>
+    <div class="opt-panel on-panel">
+      <div id="onHome">
+        <button class="mbtn play" id="onCreate"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg><span>Create room</span></button>
+        <div class="on-or">or join a friend's room</div>
+        <div class="on-join"><input id="onCode" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code"><button class="mbtn" id="onJoin"><span>Join</span></button></div>
+      </div>
+      <div id="onRoom" hidden>
+        <div class="on-label">Your room code</div>
+        <div class="on-code" id="onRoomCode">----</div>
+        <button class="chip" id="onCopy"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg> Copy invite link</button>
+      </div>
+      <p class="on-status" id="onStatus" role="status"></p>
+    </div>
+    <button class="btn" id="onBack"><span>Back</span></button>
   </section>
 
   <section id="scr-select" class="screen" hidden>
@@ -597,6 +640,9 @@ let VIEW_W = 960;
 const FONT_D = '"Bungee", Impact, "Arial Black", sans-serif';
 const clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t), easeIn=t=>t*t;
+/* sine from + - * / only: identical on every browser (Math.sin may round differently), used where it affects hits */
+function dsin(x){ const T=6.283185307179586; x-=Math.floor(x/T+0.5)*T; if(x>1.5707963267948966) x=3.141592653589793-x; else if(x<-1.5707963267948966) x=-3.141592653589793-x;
+  const x2=x*x; return x*(1-x2/6*(1-x2/20*(1-x2/42*(1-x2/72)))); }
 const rnd=(a=1,b)=>b===undefined?Math.random()*a:a+Math.random()*(b-a);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 function hexA(hex,a){const n=parseInt(hex.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;}
@@ -665,7 +711,7 @@ function audioInit(){
   loadSong(); loadSfx();
   try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u);} }catch(e){}
 }
-function sfxOK(force){ return AU.ctx && settings.sound && (force || game.mode!=='demo'); }
+function sfxOK(force){ return AU.ctx && settings.sound && !NET.resim && (force || game.mode!=='demo'); }
 function env(g,t,a,d,v){ g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); }
 function tone(type,f0,f1,dur,vol,dest,when,filt){
   const c=AU.ctx; if(!c) return; const t=when??c.currentTime;
@@ -701,6 +747,7 @@ const sfx={
   confirm(){ if(!AU.ctx||!settings.sound)return; tone('square',660,660,0.06,0.08); tone('square',990,990,0.09,0.08,null,AU.ctx.currentTime+0.07); },
 };
 function say(text,force){
+  if(NET.resim) return;
   if(!settings.sound || (game.mode==='demo'&&!force) || !('speechSynthesis' in window)) return;
   try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.rate=0.92; u.pitch=0.35; u.volume=1; speechSynthesis.speak(u);}catch(e){}
 }
@@ -1197,9 +1244,9 @@ function slamLand(f){
 function updateProjs(){
   for(const p of projs){
     if(!p.alive) continue;
-    p.t++; p.x+=p.vx; p.yy=p.kind==='halo'?p.y+Math.sin(p.t*0.16)*9:p.y;
+    p.t++; p.x+=p.vx; p.yy=p.kind==='halo'?p.y+dsin(p.t*0.16)*9:p.y;
     if(p.t%2===0){ const col={coin:'#ffd25a',fleur:'#c9a0ff',halo:'#ffc0e0',wave:'#bfe6ff'}[p.kind]; if(p.kind==='wave') dust(p.x,4,-Math.sign(p.vx)); else P({x:p.x-Math.sign(p.vx)*p.r*0.6,y:p.yy+rnd(-p.r*0.5,p.r*0.5),vx:-p.vx*0.15,vy:rnd(-0.5,0.5),life:14,size:3+rnd(3),color:col,type:'dot'}); }
-    if(p.x<cam.x-120||p.x>cam.x+VIEW_W+120||p.x<-60||p.x>STAGE_W+60||p.t>240){ p.alive=false; continue; }
+    if((!NET.running&&(p.x<cam.x-120||p.x>cam.x+VIEW_W+120))||p.x<-60||p.x>STAGE_W+60||p.t>240){ p.alive=false; continue; }
     for(const q of projs){ if(q===p||!q.alive||q.owner===p.owner||q.kind==='wave'||p.kind==='wave') continue; if(Math.abs(q.x-p.x)<p.r+q.r&&Math.abs(q.yy-p.yy)<p.r+q.r){ p.alive=q.alive=false; hitSpark((p.x+q.x)/2,(p.yy+q.yy)/2,true,'#ffffff'); sfx.block(); } }
     if(!p.alive) continue;
     const def=p.owner.opp; const hr=hurtRect(def); if(!hr) continue;
@@ -1517,7 +1564,7 @@ function applyHit(att,def,h,isProj,pt){
   hitSpark(pt.x,pt.y,h.heavy||h.big,col);
   const am=att.move, atr=am&&(am.trailDyn?am.trailDyn(att,att.t):am.trail);
   sfx.hit(!!(h.heavy||h.big), !isProj&&!!am&&(/punch/.test(am.kind||'')||atr==='punch'));
-  if(game.mode!=='demo') padRumble(h.big?0.9:h.heavy?0.65:0.35,h.big?220:h.heavy?140:80);
+  if(game.mode!=='demo'&&!NET.resim) padRumble(h.big?0.9:h.heavy?0.65:0.35,h.big?220:h.heavy?140:80);
   if(isTouch&&navigator.vibrate&&game.mode!=='demo'&&!gp.active){ try{navigator.vibrate(h.heavy?28:14);}catch(e){} }
   if(!isProj&&att.move&&att.move.onHit) att.move.onHit(att,def,false);
 }
@@ -1537,7 +1584,7 @@ function resolvePush(a,b){
   if(ad<minD){ const s=dx>0?1:dx<0?-1:(a.face||1); const push=(minD-ad)/2; a.x-=s*push; b.x+=s*push; }
 }
 function constrain(a,b){
-  const maxSep=VIEW_W-120; const dx=b.x-a.x;
+  const maxSep=(NET.running?NET_VIEW:VIEW_W)-120; const dx=b.x-a.x;   /* online: same limit on every screen size */
   if(Math.abs(dx)>maxSep){ const s=Math.sign(dx), ex=Math.abs(dx)-maxSep; const aAway=(-s*a.vx)>0.01, bAway=(s*b.vx)>0.01;
     if(aAway&&!bAway) a.x+=s*ex; else if(bAway&&!aAway) b.x-=s*ex; else { a.x+=s*ex/2; b.x-=s*ex/2; } }
   for(const f of [a,b]){ const hw=f.ch.bw/2; if(f.x<hw+20){ f.x=hw+20; f.atWall=-1; } else if(f.x>STAGE_W-hw-20){ f.x=STAGE_W-hw-20; f.atWall=1; } else f.atWall=0; }
@@ -1944,14 +1991,15 @@ let last=performance.now(), acc=0;
 function frame(now){
   requestAnimationFrame(frame);
   let dt=Math.min(100,now-last); last=now; pollPads(now);
-  if(!game.paused&&game.F&&!MENU_SCREENS[current]){ acc+=dt; let n=0; while(acc>=1000/60&&n<5){ acc-=1000/60; step(); n++; } if(n>=5) acc=0; }
+  if(NET.running) netTick(dt);
+  else if(!game.paused&&game.F&&!MENU_SCREENS[current]){ acc+=dt; let n=0; while(acc>=1000/60&&n<5){ acc-=1000/60; step(); n++; } if(n>=5) acc=0; }
   render(); if(current==='select') drawSelIdle(now);
   const sb=document.querySelector('.pb[data-b="x"]'); if(sb&&game.F&&game.mode!=='demo'){ sb.classList.toggle('ready',game.F[0].meter>=100); }
 }
 
 /* ================= SCREENS & FLOW ================= */
-const SCREENS=['title','options','select','stage','vs','result','pause','help'];
-const MENU_SCREENS={title:1,options:1,select:1,stage:1,help:1};
+const SCREENS=['title','options','online','select','stage','vs','result','pause','help'];
+const MENU_SCREENS={title:1,options:1,online:1,select:1,stage:1,help:1};
 let current='title';
 function show(id){
   current=id; if(gp.active&&id&&id!=='select'&&id!=='stage'&&id!=='vs') setTimeout(()=>{ const L=menuFocusables(); if(L.length&&!L.includes(document.activeElement)) L[0].focus({preventScroll:true}); },60);
@@ -1988,7 +2036,8 @@ function fitFigure(box,img){
 /* Select screen: fighters with a combat-idle clip bounce in their fight stance; everyone else is a still picture */
 const SEL_IDLE={"fresh": {"n": 26, "w": 360, "h": 623, "cols": 11, "fps": 24}, "boss": {"n": 19, "w": 346, "h": 618, "cols": 11, "fps": 24}, "nola": {"n": 22, "w": 310, "h": 702, "cols": 12, "fps": 24}, "angel": {"n": 28, "w": 409, "h": 694, "cols": 9, "fps": 24}, "draco": {"n": 19, "w": 435, "h": 667, "cols": 9, "fps": 24}}, selIdle={img:{},side:[{id:null,k:-1,cw:0},{id:null,k:-1,cw:0}]};
 function dropSelSheets(keep){ keep=keep||[]; for(const k in selIdle.img) if(!keep.includes(k)){ selIdle.img[k].src=''; delete selIdle.img[k]; } }
-function csFighter(s){ if(s===0) return sel.step===0?ROSTER[sel.cursor]:ROSTER[sel.picks[0]]; return sel.step===1?ROSTER[sel.cursor]:null; }
+function csFighter(s){ if(sel.mode==='online') return s===0?ROSTER[NET.myPick??sel.cursor]:(NET.oppPick!=null?ROSTER[NET.oppPick]:null);
+  if(s===0) return sel.step===0?ROSTER[sel.cursor]:ROSTER[sel.picks[0]]; return sel.step===1?ROSTER[sel.cursor]:null; }
 function selIdleSheet(id){
   if(smallSheets()) dropSelSheets([0,1].map(csFighter).filter(Boolean).map(f=>f.id).concat(id));   /* low quality: keep only the sheets on screen */
   let im=selIdle.img[id]; if(!im){ im=new Image(); im.onload=()=>{ if(current==='select') renderSelect(); }; im.src='sprites/'+id+'_sel.webp'; selIdle.img[id]=im; } return im; }
@@ -2003,10 +2052,11 @@ function sizeSelCanvas(){ for(let s=0;s<2;s++){ const S=selIdle.side[s], m=SEL_I
 function fitFigures(){ sizeSelCanvas(); fitFigure($('resCard'),$('resImg')); }
 function renderSide(s){
   const n=s+1, el=$('csSide'+n), f=csFighter(s), S=selIdle.side[s], two=sel.mode==='2p';
-  $('csTag'+n).textContent=s===0?'Player 1':(two?'Player 2':'CPU');
-  el.classList.toggle('locked',s===0&&sel.step===1);
+  const on=sel.mode==='online';
+  $('csTag'+n).textContent=on?(s===0?'You':'Opponent'):s===0?'Player 1':(two?'Player 2':'CPU');
+  el.classList.toggle('locked',on?(s===0?NET.myPick!=null:NET.oppPick!=null):(s===0&&sel.step===1));
   if(!f){ el.classList.add('empty'); S.id=null; $('csImg'+n).hidden=true; $('csAnim'+n).hidden=true; $('csGhost'+n).hidden=true;
-    const w=$('csWait'+n); w.hidden=false; w.querySelector('span').textContent=sel.mode==='arcade'?'Every fighter, one by one':(two?'Waiting for player 2':'CPU picks next'); return; }
+    const w=$('csWait'+n); w.hidden=false; w.querySelector('span').textContent=on?'Opponent is choosing…':sel.mode==='arcade'?'Every fighter, one by one':(two?'Waiting for player 2':'CPU picks next'); return; }
   el.classList.remove('empty'); $('csWait'+n).hidden=true;
   const g=$('csGhost'+n); g.hidden=false; g.src=IMG_SRC[f.id+'_face'];
   const m=SEL_IDLE[f.id], sh=m&&f.animCfg?selIdleSheet(f.id):null, anim=!!(sh&&sh.naturalWidth), img=$('csImg'+n), cv2=$('csAnim'+n);
@@ -2014,13 +2064,18 @@ function renderSide(s){
   if(anim){ if(S.id!==f.id){ S.id=f.id; S.k=-1; cv2.width=m.w; cv2.height=m.h; } cv2.setAttribute('aria-label',f.name); sizeSelCanvas(); }
   else { S.id=null; img.src=IMG_SRC[f.id]; img.alt=f.name; }
   if(!(renaming&&s===sel.step)) $('csName'+n).textContent=f.name;
-  $('csEdit'+n).hidden=s!==sel.step;
+  $('csEdit'+n).hidden=on?(s!==0||NET.myPick!=null):s!==sel.step;
   $('csSub'+n).textContent=f.sub;
   $('csStats'+n).innerHTML=['Power','Speed','Health'].map((l,i)=>`<span>${l}</span><span class="bar5">${[0,1,2,3,4].map(k=>`<i class="${k<f.stats[i]?'on':''}"></i>`).join('')}</span>`).join('');
   $('csMoves'+n).innerHTML=`Special <b>${f.spName}</b> · Super <b>${f.suName}</b>`;
 }
 function renderSelect(){
   const two=sel.mode==='2p';
+  if(sel.mode==='online'){ $('selTitle').innerHTML=NET.myPick==null?'<em>Online</em> · Character select':(NET.oppPick==null?'Waiting for opponent…':(NET.role==='host'?'Choose the stage':'Opponent is picking the stage…'));
+    renderSide(0); renderSide(1); drawSelIdle(performance.now()); const p1=NET.myPick??sel.cursor, p2=NET.oppPick??-1;
+    document.querySelectorAll('#selGrid .tile').forEach((t,i)=>{ t.classList.toggle('p1',i===p1); t.classList.toggle('p2',i===p2); t.classList.toggle('sel',i===sel.cursor);
+      t.querySelector('.tags').innerHTML=(i===p1?'<span class="tg">YOU</span>':'')+(i===p2?'<span class="tg p2">OPP</span>':''); });
+    return; }
   $('selTitle').innerHTML=sel.step===0?(two?'<em>P1</em> · Character select':'Character select'):(two?'<em>P2</em> · Character select':'Choose your opponent');
   renderSide(0); renderSide(1); drawSelIdle(performance.now());
   const p1=sel.step===0?sel.cursor:sel.picks[0], p2=sel.step===1?sel.cursor:-1;
@@ -2050,11 +2105,12 @@ function buildSelect(){
   const g=$('selGrid'); g.innerHTML='';
   ROSTER.forEach((ch,i)=>{ const b=document.createElement('button'); b.className='tile'; b.style.setProperty('--c',ch.color); b.setAttribute('aria-label',ch.name);
     b.innerHTML=`<img src="${IMG_SRC[ch.id+'_face']}" alt=""><span class="nm">${ch.name}</span><span class="tags"></span>`;
-    b.addEventListener('click',()=>{ audioInit(); if(sel.cursor===i&&!isTouch){ lockPick(); return; } sel.cursor=i; sfx.ui(); renderSelect(); });
+    b.addEventListener('click',()=>{ audioInit(); if(sel.mode==='online'&&NET.myPick!=null) return; if(sel.cursor===i&&!isTouch){ lockPick(); return; } sel.cursor=i; sfx.ui(); renderSelect(); });
     b.addEventListener('dblclick',()=>lockPick());
     g.appendChild(b); });
 }
 function lockPick(){
+  if(sel.mode==='online'){ netLockPick(); return; }
   audioInit(); sfx.confirm();
   sel.picks.push(sel.cursor);
   if(sel.mode==='arcade'){
@@ -2103,7 +2159,9 @@ function pickStage(){
   audioInit(); sfx.confirm();
   const ids=[...STAGE_LIST,'random']; let id=ids[stg.cursor];
   if(id==='random') id=STAGE_LIST[Math.floor(Math.random()*STAGE_LIST.length)];
-  sel.stageId=id; goVS(ROSTER[sel.picks[0]],ROSTER[sel.picks[1]]);
+  sel.stageId=id;
+  if(sel.mode==='online'){ netStartMatch(id); return; }
+  goVS(ROSTER[sel.picks[0]],ROSTER[sel.picks[1]]);
 }
 let vsTimer=null, pendingMatch=null;
 function goVS(c1,c2){
@@ -2125,6 +2183,7 @@ function goVS(c1,c2){
 function beginMatch(){
   clearTimeout(vsTimer); if(!pendingMatch||current!=='vs') return;
   if(!pendingMatch.ready){ pendingMatch.go=true; $('vsStage').textContent='LOADING…'; return; }
+  if(sel.mode==='online'){ netReady(); return; }
   const {c1,c2}=pendingMatch; pendingMatch=null;
   for(const ch of ROSTER) if(ch!==c1&&ch!==c2) unloadFighter(ch);   /* free the other fighters' sheets */
   const mode=sel.mode; game.mode=mode;
@@ -2137,7 +2196,8 @@ function beginMatch(){
   show(null);
 }
 function onMatchEnd(w){
-  const mode=game.mode; const me=game.F[0];
+  const mode=game.mode; const me=game.F[mode==='online'?NET.me:0];
+  if(mode==='online') netMatchOver();
   const won=w===me;
   const ch=w.ch;
   $('resCard').style.setProperty('--c',ch.color);
@@ -2153,8 +2213,10 @@ function onMatchEnd(w){
     $('resKick').textContent=mode==='2p'?(w.side===0?'Player 1 wins':'Player 2 wins'):(won?'You win':'CPU wins');
     btns.push(['Rematch',()=>goVS(game.F[0].ch,game.F[1].ch),true],['Change fighters',()=>chooseMode(mode)],['Title',goTitle]);
   }
+  if(mode==='online'){ btns.length=0; $('resKick').textContent=won?'You win':'Opponent wins';
+    btns.push(['Rematch',e=>netRematch(e),true],['Change fighters',()=>netReselect(true)],['Leave',()=>netLeave()]); }
   const box=$('resBtns'); box.innerHTML='';
-  btns.forEach(([label,fn,primary])=>{ const b=document.createElement('button'); b.className='btn'+(primary?' primary':''); b.innerHTML=`<span>${label}</span>`; b.addEventListener('click',()=>{ audioInit(); sfx.confirm(); fn(); }); box.appendChild(b); });
+  btns.forEach(([label,fn,primary])=>{ const b=document.createElement('button'); b.className='btn'+(primary?' primary':''); b.innerHTML=`<span>${label}</span>`; b.addEventListener('click',e=>{ audioInit(); sfx.confirm(); fn(e); }); box.appendChild(b); });
   show('result');
   if(finePointer){ const f=box.querySelector('button'); if(f) f.focus({preventScroll:true}); }
 }
@@ -2219,8 +2281,186 @@ function pollPads(now){
 addEventListener('gamepadconnected',e=>{ gp.seen[e.gamepad.index]=1; padToast((/dualsense|054c/i.test(e.gamepad.id)?'PS5 controller':'Controller')+' connected'); });
 addEventListener('gamepaddisconnected',e=>{ delete gp.seen[e.gamepad.index]; padToast('Controller disconnected'); if(current===null&&game.mode!=='demo') pauseGame(); });
 addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.body.classList.remove('gp'); } },true);
-function pauseGame(){ if(current!==null||game.mode==='demo') return; game.paused=true; show('pause'); songPause(); try{speechSynthesis.cancel();}catch(e){} }
-function resumeGame(){ game.paused=false; show(null); last=performance.now(); songResume(); }
+
+/* ================= ONLINE (room codes, lockstep netcode) =================
+   Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
+   for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
+   Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
+const BUILD_ID='18e338cebb', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
+const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
+  myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
+const NET_TEST=/[?&]nettest=1/.test(location.search), NET_LAG=+((location.search.match(/[?&]lag=(\d+)/)||[])[1]||0);
+const IN_KEYS=['l','r','u','d','p','k','s','x','pp','pk','ps','px'];
+const encIn=o=>IN_KEYS.reduce((b,k,i)=>b|(o[k]?1<<i:0),0), decIn=b=>{ const o={}; IN_KEYS.forEach((k,i)=>o[k]=!!(b&(1<<i))); return o; };
+class NetCtrl{ constructor(side){ this.side=side; } read(){ return decIn(NET.cur[this.side]); } }
+function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); }); }
+/* transports: PeerJS (WebRTC) on the real site; BroadcastChannel between two tabs for testing (?nettest=1) */
+function wrapConn(raw){ const h={data:[],close:[]};
+  return {raw,send(o){ try{ raw.send(o); }catch(e){} },onData(fn){ h.data.push(fn); },onClose(fn){ h.close.push(fn); },close(){ try{ raw.close(); }catch(e){} },_data(d){ h.data.forEach(f=>f(d)); },_close(){ h.close.forEach(f=>f()); }}; }
+const NetPeer={
+  async load(){ if(NET_TEST||window.Peer) return; await loadScript(PEERJS_URL); if(!window.Peer) throw new Error('peerjs'); },
+  host(code,cb){
+    if(NET_TEST){ const ch=new BroadcastChannel('df-'+code); let c=null; ch.onmessage=e=>{ const m=e.data; if(m.from!=='g') return;
+        if(m.knock&&!c){ c=bcConn(ch,'h'); ch.postMessage({from:'h',welcome:1}); cb.conn(c); } else if(c&&m.d!==undefined) c._recv(m.d); else if(c&&m.bye) c._close(); };
+      setTimeout(()=>cb.open(),10); return {close(){ ch.close(); }}; }
+    const p=new Peer(NET_PREFIX+code,{debug:0}); p.on('open',()=>cb.open());
+    p.on('connection',raw=>{ raw.on('open',()=>{ const c=wrapConn(raw); raw.on('data',d=>c._data(d)); raw.on('close',()=>c._close()); raw.on('error',()=>c._close()); cb.conn(c); }); });
+    p.on('error',e=>cb.err(e&&e.type||'error')); p.on('disconnected',()=>{ try{ p.reconnect(); }catch(e){} }); return p; },
+  join(code,cb){
+    if(NET_TEST){ const ch=new BroadcastChannel('df-'+code); let c=null; ch.onmessage=e=>{ const m=e.data; if(m.from!=='h') return;
+        if(m.welcome&&!c){ c=bcConn(ch,'g'); cb.conn(c); } else if(c&&m.d!==undefined) c._recv(m.d); else if(c&&m.bye) c._close(); };
+      ch.postMessage({from:'g',knock:1}); setTimeout(()=>{ if(!c) cb.err('peer-unavailable'); },1500); return {close(){ ch.close(); }}; }
+    const p=new Peer(undefined,{debug:0});
+    p.on('open',()=>{ const raw=p.connect(NET_PREFIX+code,{reliable:true,serialization:'json'});
+      raw.on('open',()=>{ const c=wrapConn(raw); raw.on('data',d=>c._data(d)); raw.on('close',()=>c._close()); raw.on('error',()=>c._close()); cb.conn(c); }); });
+    p.on('error',e=>cb.err(e&&e.type||'error')); return p; }
+};
+function bcConn(ch,me){ const c=wrapConn({send(d){ const go=()=>{ try{ ch.postMessage({from:me,d}); }catch(e){} }; NET_LAG?setTimeout(go,NET_LAG):go(); },close(){ try{ ch.postMessage({from:me,bye:1}); }catch(e){} }});
+  c._recv=d=>c._data(d); return c; }
+/* ---- lobby ---- */
+const ROOM_ABC='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const newCode=()=>Array.from({length:4},()=>ROOM_ABC[Math.floor(Math.random()*ROOM_ABC.length)]).join('');
+function onStatus(t,err){ const el=$('onStatus'); el.textContent=t||''; el.classList.toggle('err',!!err); }
+function openOnline(){ audioInit(); sfx.ui(); netClose(); $('onHome').hidden=false; $('onRoom').hidden=true; onStatus(''); show('online'); if(finePointer) setTimeout(()=>$('onCreate').focus({preventScroll:true}),40); }
+async function netLoad(){ onStatus('Connecting…'); try{ await NetPeer.load(); return true; }catch(e){ onStatus("Couldn't reach the online service. Check your internet, or open the game at dripfighters.netlify.app.",true); return false; } }
+async function netCreate(tries=0){
+  if(!await netLoad()) return; netClose(); const code=newCode(); NET.role='host'; NET.me=0;
+  NET.peer=NetPeer.host(code,{ open(){ $('onHome').hidden=true; $('onRoom').hidden=false; $('onRoomCode').textContent=code; NET.code=code; onStatus('Waiting for your opponent to join…'); },
+    conn(c){ if(NET.conn){ c.close(); return; } netAttach(c); },
+    err(t){ if(t==='unavailable-id'&&tries<4){ netCreate(tries+1); return; } onStatus(t==='network'||t==='server-error'||t==='socket-error'?"Couldn't reach the online service. Try again in a moment.":'Something went wrong ('+t+'). Try again.',true); } });
+}
+async function netJoin(code){
+  code=(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(code.length!==4){ onStatus('Enter the 4-letter room code.',true); return; }
+  if(!await netLoad()) return; netClose(); NET.role='guest'; NET.me=1; onStatus('Joining room '+code+'…');
+  NET.peer=NetPeer.join(code,{ conn(c){ netAttach(c); }, err(t){ onStatus(t==='peer-unavailable'?'Room '+code+" wasn't found. Check the code, or ask your friend for a new one.":"Couldn't connect ("+t+'). Try again.',true); } });
+}
+function netAttach(c){
+  NET.conn=c; NET.on=true; NET.lastRx=performance.now(); c.onData(m=>{ NET.lastRx=performance.now(); netOnData(m); }); c.onClose(()=>netDropped());
+  netSend({t:'hello',v:BUILD_ID}); onStatus('Connected! Checking versions…');
+  clearInterval(NET.pingT); NET.pingT=setInterval(()=>{ netSend({t:'pg',ts:performance.now()}); if(performance.now()-NET.lastRx>10000) netDropped(); },1000);   /* nothing heard for 10 s: they're gone */
+}
+function netSend(o){ if(NET.conn) NET.conn.send(o); }
+function netClose(){ clearInterval(NET.pingT); NET.pingT=null; const c=NET.conn, p=NET.peer; NET.conn=null; NET.peer=null; NET.on=false; NET.running=false; $('netWait').hidden=true; $('netPing').hidden=true;
+  if(c) c.close(); if(p){ try{ p.destroy?p.destroy():p.close(); }catch(e){} } }
+function netLeave(){ netSend({t:'bye'}); netClose(); goTitle(); }
+function netDropped(){ if(!NET.on) return; const wasFight=NET.running||current===null||current==='result'||current==='vs'||current==='select'||current==='stage'; netClose(); if(wasFight){ goTitle(); padToast('Opponent left the match'); } else onStatus('Connection lost.',true); }
+function netOnData(m){
+  if(!m||typeof m!=='object') return;
+  switch(m.t){
+    case 'i': NET.inp[1-NET.me][m.f]=m.b; break;
+    case 'pg': netSend({t:'po',ts:m.ts}); break;
+    case 'po': NET.ping=Math.round(performance.now()-m.ts); $('netPing').textContent='Ping '+NET.ping+' ms'; break;
+    case 'hello':
+      if(m.v!==BUILD_ID){ onStatus("Your games are different versions. Both players: refresh the page, then try again.",true); netSend({t:'bye'}); setTimeout(netClose,200); return; }
+      netReselect(false); break;
+    case 'pick': NET.oppPick=m.id; if(current==='select') renderSelect(); netCheckPicks(); break;
+    case 'start': netGoVS(m.a,m.b,m.stage,m.delay,m.w); break;
+    case 'ready': NET.oppReady=m; netCheckReady(); break;
+    case 'go': netBegin(m.delay,m.w); break;
+    case 'abort': netAbort(m.why); break;
+    case 'c': netCheck(m); break;
+    case 'rm': NET.oppRematch=true; netCheckRematch(); break;
+    case 'rs': netReselect(false); break;
+    case 'bye': netDropped(); break;
+  }
+}
+/* ---- picking ---- */
+function netReselect(tell){ if(tell) netSend({t:'rs'}); NET.running=false; NET.myPick=null; NET.oppPick=null; NET.meReady=false; NET.oppReady=null; NET.wantRematch=false; NET.oppRematch=false;
+  $('netWait').hidden=true; game.F=null; game.stage=null; game.mode='online'; sel.mode='online'; sel.step=0; sel.picks=[]; sel.cursor=NET.me===0?0:1; sel.stageId=null; wantSong('splash.mp3');
+  $('netPing').hidden=true; show('select'); renderSelect(); }
+function netLockPick(){ if(NET.myPick!=null) return; audioInit(); sfx.confirm(); NET.myPick=sel.cursor; netSend({t:'pick',id:NET.myPick}); renderSelect(); netCheckPicks(); }
+function netCheckPicks(){ if(NET.myPick==null||NET.oppPick==null||current!=='select') return; renderSelect();
+  if(NET.role==='host'){ sel.picks=[NET.myPick,NET.oppPick]; setTimeout(()=>{ if(current==='select'&&NET.myPick!=null&&NET.oppPick!=null) goStage(); },500); } }
+function netDelay(){ return clamp(Math.ceil(NET.ping/2/STEP_MS)+2,3,8); }
+function netStartMatch(stage){ const a=NET.myPick, b=NET.oppPick, d=netDelay(); NET.lastStart={a,b,stage}; netSend({t:'start',a,b,stage,delay:d}); netGoVS(a,b,stage,d); }
+function netGoVS(a,b,stage,d){ NET.match={a,b,stage,delay:d}; NET.meReady=false; NET.oppReady=null; NET.wantRematch=false; NET.oppRematch=false; sel.stageId=stage; goVS(ROSTER[a],ROSTER[b]); }
+function netReady(){ if(NET.meReady) return; NET.meReady=true; $('vsStage').textContent='WAITING FOR OPPONENT…';
+  const [c1,c2]=[ROSTER[NET.match.a],ROSTER[NET.match.b]]; NET.myLoad={an:[!!c1.anim,!!c2.anim]}; netSend({t:'ready',an:NET.myLoad.an}); netCheckReady(); }
+function netCheckReady(){
+  if(NET.role!=='host'||!NET.meReady||!NET.oppReady) return;
+  if(NET.oppReady.an.join()!==NET.myLoad.an.join()){ netSend({t:'abort',why:'load'}); netAbort('load'); return; }
+  const st=stageFor(NET.match.stage), w=st.w||1280; netSend({t:'go',delay:NET.match.delay,w}); netBegin(NET.match.delay,w); }
+function netAbort(why){ NET.meReady=false; padToast(why==='load'?"A fighter didn't finish loading. Pick again.":'Match cancelled'); netReselect(false); }
+function netBegin(delay,w){
+  if(!pendingMatch) return; const {c1,c2}=pendingMatch; pendingMatch=null; clearTimeout(vsTimer);
+  for(const ch of ROSTER) if(ch!==c1&&ch!==c2) unloadFighter(ch);
+  game.mode='online'; for(const b in touchIn) touchIn[b]=false; keyLatch.clear(); touchLatch.clear();
+  startMatch(c1,c2,new NetCtrl(0),new NetCtrl(1),NET.match.stage); STAGE_W=w||STAGE_W; resetRound();
+  NET.human=new Human(MAP_SOLO,true); NET.delay=delay||4; NET.frame=0; NET.inp=[[],[]]; NET.hash={}; NET.pendingChk={}; NET.acc=0; NET.stall=0; NET.cur=[0,0];
+  for(let f=0;f<NET.delay;f++){ NET.inp[0][f]=0; NET.inp[1][f]=0; } NET.sent=NET.delay-1; NET.running=true; $('netPing').hidden=false;
+  show(null);
+}
+/* ---- the lockstep loop ---- */
+function netTick(dt){
+  NET.acc=Math.min(NET.acc+dt,STEP_MS*6); let n=0;
+  while(NET.acc>=STEP_MS&&n<6){
+    if(NET.sent<NET.frame+NET.delay){ NET.sent++; const b=encIn(NET.human.read()); NET.inp[NET.me][NET.sent]=b; netSend({t:'i',f:NET.sent,b}); }
+    const fa=NET.inp[0][NET.frame], fb=NET.inp[1][NET.frame];
+    if(fa===undefined||fb===undefined){ NET.stall+=dt; if(NET.stall>450) $('netWait').hidden=false; NET.acc=Math.min(NET.acc,STEP_MS*2); return; }
+    NET.cur=[fa,fb]; step(); netAfterStep(NET.frame); NET.frame++; NET.acc-=STEP_MS; n++;
+    if(!NET.running) break;
+  }
+  if(n){ NET.stall=0; $('netWait').hidden=true; }
+  const old=NET.frame-720; if(old>0&&old%60===0){ for(const s of [0,1]) for(let f=old-60;f<old;f++) delete NET.inp[s][f]; for(const k in NET.hash) if(+k<old) delete NET.hash[k]; }
+}
+function netAfterStep(f){
+  if(f%60!==59) return;
+  const h=netHash();
+  if(NET.role==='host') netSend({t:'c',f,h,s:netSnap()});
+  else { NET.hash[f]=h; const c=NET.pendingChk[f]; if(c){ delete NET.pendingChk[f]; netCompare(c); } }
+}
+function netCheck(m){ if(NET.role!=='guest'||!NET.running) return; if(NET.hash[m.f]===undefined){ NET.pendingChk[m.f]=m; return; } netCompare(m); }
+function netCompare(m){ if(NET.hash[m.f]===m.h) return;
+  /* out of sync: load the host's snapshot of that frame, then replay the frames since using the saved buttons */
+  netRestore(m.s); NET.resim=true; try{ for(let f=m.f+1;f<NET.frame;f++){ NET.cur=[NET.inp[0][f]||0,NET.inp[1][f]||0]; step(); } } finally{ NET.resim=false; }
+  NET.hash={}; NET.resyncs=(NET.resyncs||0)+1; }
+function netMatchOver(){ NET.running=false; NET.cur=[0,0]; $('netWait').hidden=true; }
+function netRematch(e){ if(NET.wantRematch) return; NET.wantRematch=true; netSend({t:'rm'}); const b=e&&e.currentTarget; if(b) b.innerHTML='<span>Waiting…</span>'; netCheckRematch(); }
+function netCheckRematch(){ if(!NET.wantRematch||!NET.oppRematch) return; if(NET.role==='host'){ const L=NET.lastStart||NET.match; NET.myPick=L.a; NET.oppPick=L.b; netStartMatch(L.stage); } }
+/* ---- fingerprint + snapshot of the fight ---- */
+const SNAP_SKIP=new Set(['ch','ctrl','opp','src','moves','blend','lastDesc','lastPose','ghosts','dp','animKey','curAnim']);
+const fIdx=f=>f?game.F.indexOf(f):-1, fRef=i=>i>=0?game.F[i]:null;
+function netHash(){ const r=v=>Math.round((+v||0)*1000); let s=game.phase+'|'+game.pt+'|'+game.timer+'|'+game.tc+'|'+game.stop+'|'+game.round;
+  for(const f of game.F) s+='|'+[r(f.x),r(f.y),r(f.vx),r(f.vy),r(f.hp),r(f.meter),f.state,f.t,f.mt,f.stun,f.face,f.rounds,f.combo,f.move?f.moveSerial:-1].join(',');
+  for(const p of projs) if(p.alive) s+='|p'+r(p.x)+','+r(p.yy);
+  let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function netSnap(){
+  const F=game.F.map(f=>{ const o={}; for(const k in f){ if(SNAP_SKIP.has(k)) continue; const v=f[k]; if(typeof v==='function') continue;
+    if(k==='move'){ o.move=v?Object.keys(f.moves).find(m=>f.moves[m]===v):null; continue; }
+    if(k==='proj'){ o.proj=v?projs.indexOf(v):-1; continue; }
+    if(k==='hitIds'){ o.hitIds=f.move?[...v].map(h=>f.move.hits.indexOf(h)):[]; continue; }
+    o[k]=(v&&typeof v==='object')?JSON.parse(JSON.stringify(v)):v; } return o; });
+  const P=projs.map(p=>{ const o={}; for(const k in p){ if(k==='owner') o.owner=fIdx(p.owner); else if(typeof p[k]!=='object'||p[k]===null) o[k]=p[k]; } return o; });
+  const G={}; for(const k of ['phase','pt','round','timer','tc','stop','tick']) G[k]=game[k];
+  for(const k of ['winner','koVictim','matchWinner','lastAtk']) G[k]=fIdx(game[k]); G.flash=game.flash?{f:fIdx(game.flash.f),t:game.flash.t,max:game.flash.max}:null;
+  return {F,P,G}; }
+function netRestore(S){
+  projs.length=0; for(const o of S.P){ const p=Object.assign({},o); p.owner=fRef(o.owner); projs.push(p); }
+  S.F.forEach((o,i)=>{ const f=game.F[i]; for(const k in o){ if(k==='move'||k==='proj'||k==='hitIds') continue; f[k]=o[k]; }
+    f.move=o.move?f.moves[o.move]:null; f.proj=o.proj>=0?projs[o.proj]:null; f.hitIds=new Set(f.move?o.hitIds.map(j=>f.move.hits[j]).filter(Boolean):[]); });
+  const G=S.G; for(const k of ['phase','pt','round','timer','tc','stop','tick']) game[k]=G[k];
+  for(const k of ['winner','koVictim','matchWinner','lastAtk']) game[k]=fRef(G[k]); game.flash=G.flash?{f:fRef(G.flash.f),t:G.flash.t,max:G.flash.max}:null; }
+addEventListener('pagehide',()=>{ if(NET.conn) netSend({t:'bye'}); });
+function bindOnline(){
+  $('btnOnline').addEventListener('click',openOnline);
+  $('onCreate').addEventListener('click',()=>{ audioInit(); sfx.confirm(); netCreate(); });
+  $('onJoin').addEventListener('click',()=>{ audioInit(); sfx.confirm(); netJoin($('onCode').value); });
+  $('onCode').addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); netJoin($('onCode').value); } else if(e.key==='Escape'){ $('onBack').click(); } });
+  $('onCode').addEventListener('input',e=>{ e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4); });
+  $('onBack').addEventListener('click',()=>{ sfx.ui(); netClose(); show('title'); });
+  $('onCopy').addEventListener('click',async()=>{ const url=location.origin+location.pathname+'?room='+NET.code+(NET_TEST?'&nettest=1':''); let ok=false;
+    try{ if(navigator.share&&isTouch){ await navigator.share({title:'Drip Fighters',text:'Fight me in Drip Fighters! Room '+NET.code,url}); ok=true; } }catch(e){}
+    if(!ok){ try{ await navigator.clipboard.writeText(url); padToast('Invite link copied'); }catch(e){ padToast('Room code: '+NET.code); } } });
+  const m=location.search.match(/[?&]room=([A-Za-z0-9]{4})/);   /* opened from an invite link: join straight away */
+  if(m){ setTimeout(()=>{ openOnline(); $('onCode').value=m[1].toUpperCase(); netJoin(m[1]); },300); }
+}
+
+function pauseGame(){ if(current!==null||game.mode==='demo') return;
+  if(NET.running){ show('pause'); $('restartBtn').hidden=true; return; }
+  $('restartBtn').hidden=false; game.paused=true; show('pause'); songPause(); try{speechSynthesis.cancel();}catch(e){} }
+function resumeGame(){ if(NET.running){ show(null); return; } game.paused=false; show(null); last=performance.now(); songResume(); }
 
 /* ================= EVENTS ================= */
 function bindUI(){
@@ -2248,16 +2488,16 @@ function bindUI(){
   $('selNext').addEventListener('click',()=>{ audioInit(); if(renaming) return; sel.cursor=(sel.cursor+1)%ROSTER.length; sfx.ui(); renderSelect(); });
   $('helpBtn').addEventListener('click',()=>{ audioInit(); show('help'); });
   $('helpClose').addEventListener('click',()=>{ show('title'); });
-  $('stgBack').addEventListener('click',()=>{ audioInit(); sfx.ui(); sel.cursor=sel.picks.pop()??0; sel.step=1; show('select'); renderSelect(); });
+  $('stgBack').addEventListener('click',()=>{ audioInit(); sfx.ui(); if(sel.mode==='online'){ NET.myPick=null; netSend({t:'pick',id:null}); show('select'); renderSelect(); return; } sel.cursor=sel.picks.pop()??0; sel.step=1; show('select'); renderSelect(); });
   $('stgGo').addEventListener('click',()=>pickStage());
-  $('selBack').addEventListener('click',()=>{ if(sel.step===1){ sel.step=0; sel.cursor=sel.picks.pop()??0; renderSelect(); } else goTitle(); });
+  $('selBack').addEventListener('click',()=>{ if(sel.mode==='online'){ if(NET.myPick!=null){ NET.myPick=null; netSend({t:'pick',id:null}); sfx.ui(); renderSelect(); } else netLeave(); return; } if(sel.step===1){ sel.step=0; sel.cursor=sel.picks.pop()??0; renderSelect(); } else goTitle(); });
   $('selGo').addEventListener('click',lockPick);
   $('selRandom').addEventListener('click',()=>{ audioInit(); sel.cursor=Math.floor(Math.random()*ROSTER.length); renderSelect(); lockPick(); });
   $('scr-vs').addEventListener('click',beginMatch);
   $('pauseBtn').addEventListener('click',pauseGame);
   $('resumeBtn').addEventListener('click',resumeGame);
   $('restartBtn').addEventListener('click',()=>{ const [a,b]=game.F; a.rounds=b.rounds=0; a.meter=b.meter=0; game.round=1; resetRound(); resumeGame(); });
-  $('quitBtn').addEventListener('click',()=>{ game.paused=false; songResume(); goTitle(); });
+  $('quitBtn').addEventListener('click',()=>{ if(NET.conn){ netLeave(); return; } game.paused=false; songResume(); goTitle(); });
   document.querySelectorAll('.drips').forEach(dr=>[[8,0],[33,1.1],[57,0.4],[84,2.0],[71,2.8]].forEach(([l,dl])=>{ const d=document.createElement('span'); d.className='drip'; d.style.left=l+'%'; d.style.animationDelay=dl+'s'; dr.appendChild(d); }));
 
   const stick=$('stick'), knob=$('knob'); let sid=null;
@@ -2281,6 +2521,7 @@ function bindUI(){
     const code=e.code;
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(code)&&current!=='help') e.preventDefault();
     if(current==='select'){
+      if(sel.mode==='online'&&NET.myPick!=null){ if(code==='Escape') $('selBack').click(); return; }
       if(code==='ArrowRight'||code==='KeyD'){ sel.cursor=(sel.cursor+1)%ROSTER.length; sfx.ui(); renderSelect(); }
       else if(code==='ArrowLeft'||code==='KeyA'){ sel.cursor=(sel.cursor+ROSTER.length-1)%ROSTER.length; sfx.ui(); renderSelect(); }
       else if(code==='Enter'||code==='KeyJ'||code==='KeyF'){ e.preventDefault(); lockPick(); }
@@ -2302,6 +2543,7 @@ function bindUI(){
     if(current==='pause'&&(code==='Escape'||code==='KeyP')){ resumeGame(); return; }
     if(current==='help'&&code==='Escape'){ show('title'); }
     if(current==='options'&&code==='Escape'){ show('title'); }
+    if(current==='online'&&code==='Escape'){ $('onBack').click(); }
     if(current==='title'&&code==='Escape'&&!$('modes').hidden){ setModes(false); $('playBtn').focus({preventScroll:true}); }
   });
   addEventListener('keyup',e=>keys.delete(e.code));
@@ -2585,7 +2827,7 @@ async function boot(){
   if(IM.angel_arcade&&IM.angel_arcade.naturalWidth) STAGES.arcade=paintedPlate('arcade',"ANGEL'S ARCADE",IM.angel_arcade,false);
   if(IM.malo_roof&&IM.malo_roof.naturalWidth) STAGES.quarter=paintedPlate('quarter','THE ROOFTOP · AFTER HOURS',IM.malo_roof);   /* painted art; the drawn version stays if it can't load */
   if(!R3.ok) $('s3dBtn').hidden=true;
-  FIG_ASPECT=Math.max(...ROSTER.map(c=>IM[c.id].naturalWidth/IM[c.id].naturalHeight)); loadNames(); buildSelect(); bindUI(); bindRename();
+  FIG_ASPECT=Math.max(...ROSTER.map(c=>IM[c.id].naturalWidth/IM[c.id].naturalHeight)); loadNames(); buildSelect(); bindUI(); bindRename(); bindOnline();
   $('loading').remove();
   goTitle();
   requestAnimationFrame(frame);
@@ -2594,7 +2836,7 @@ const hot=window.claude&&window.claude.hot;
 if(hot&&hot.snapshot) hot.snapshot(()=>({diff:settings.diff,sound:settings.sound,music:settings.music,quality:settings.quality}));
 const startApp=data=>{ if(data&&typeof data==='object') Object.assign(settings,data); boot(); };
 if(hot&&hot.ready) hot.ready(startApp); else startApp((hot&&hot.data)||{});
-window.__df={ensureFighter,PHONE,setQuality,qual,perfWatch,AU,game,ROSTER,startMatch,AI,Human,show,goVS,sel,STAGES,step,render,get cam(){return cam;},get projs(){return projs;}};
+window.__df={NET,netHash,netSnap,netRestore,ensureFighter,PHONE,setQuality,qual,perfWatch,AU,game,ROSTER,startMatch,AI,Human,show,goVS,sel,STAGES,step,render,get cam(){return cam;},get projs(){return projs;}};
 </script>
 </body>
 </html>

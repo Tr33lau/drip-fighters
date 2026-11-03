@@ -876,11 +876,20 @@ function loadSfx(){ for(const [k,u] of Object.entries(SFX_FILES)){ fetch(u).then
   const p=AU.ctx.decodeAudioData(ab,b=>{ AU.buf[k]=b; },()=>{}); if(p&&p.catch) p.catch(()=>{}); }).catch(()=>{}); } }
 function playBuf(k,vol=1,rate=1){ const b=AU.buf[k]; if(!b||!AU.ctx) return false;
   const s=AU.ctx.createBufferSource(), g=AU.ctx.createGain(); s.buffer=b; s.playbackRate.value=rate*(0.96+Math.random()*0.08); g.gain.value=vol; s.connect(g); g.connect(AU.sfx); s.start(); return true; }
+/* iPhone / iPad: the system can stop the game's audio (state 'interrupted' or 'suspended'): after spoken text, a video with sound,
+   a call or a notification. Audio is woken again straight away when possible, and on the next touch otherwise. */
+const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function audioWake(){ const c=AU.ctx; if(!c||document.hidden||c.state==='running') return;
+  c.resume().catch(()=>{});
+  try{ const s=c.createBufferSource(); s.buffer=c.createBuffer(1,1,22050); s.connect(c.destination); s.start(0); }catch(e){} }
 function audioInit(){
-  if(AU.ctx){ if(AU.ctx.state==='suspended') AU.ctx.resume().catch(()=>{}); return; }
+  if(AU.ctx){ audioWake(); return; }
   const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+  try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}   /* iOS 16.4+: a game's sound, not something other audio can switch off */
   let c; try{ c=new AC(); }catch(e){ return; }
   AU.ctx=c;
+  c.onstatechange=()=>{ if(c.state!=='running'&&!document.hidden){ setTimeout(audioWake,200); setTimeout(audioWake,1200); } };
+  for(const ev of ['touchend','pointerup','click','keydown']) addEventListener(ev,()=>{ if(c.state!=='running') audioWake(); },{capture:true,passive:true});
   AU.master=c.createGain(); AU.master.gain.value=settings.sound?0.9:0; AU.master.connect(c.destination);
   const comp=c.createDynamicsCompressor(); comp.threshold.value=-12; comp.ratio.value=4; comp.connect(AU.master);
   AU.sfx=c.createGain(); AU.sfx.gain.value=0.85; AU.sfx.connect(comp);
@@ -888,7 +897,8 @@ function audioInit(){
   const len=c.sampleRate; const b=c.createBuffer(1,len,c.sampleRate); const d=b.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1; AU.noise=b;
   AU.step=0; AU.next=c.currentTime+0.15; AU.timer=setInterval(musicTick,25);
   loadSong(); loadSfx();
-  try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u);} }catch(e){}
+  try{ const s=c.createBufferSource(); s.buffer=c.createBuffer(1,1,22050); s.connect(c.destination); s.start(0); }catch(e){}
+  if(!IS_IOS) try{ if('speechSynthesis' in window){ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u);} }catch(e){}
 }
 function sfxOK(force){ return AU.ctx && settings.sound && !NET.resim && (force || game.mode!=='demo'); }
 function env(g,t,a,d,v){ g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(v,t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); }
@@ -927,8 +937,8 @@ const sfx={
 };
 function say(text,force){
   if(NET.resim) return;
-  if(!settings.sound || (game.mode==='demo'&&!force) || !('speechSynthesis' in window)) return;
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.rate=0.92; u.pitch=0.35; u.volume=1; speechSynthesis.speak(u);}catch(e){}
+  if(IS_IOS||!settings.sound || (game.mode==='demo'&&!force) || !('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.rate=0.92; u.pitch=0.35; u.volume=1; u.onend=u.onerror=()=>audioWake(); speechSynthesis.speak(u);}catch(e){}
 }
 const BPM=90, STEP=60/BPM/4;
 const BASS=[45,0,0,45,0,0,48,0,45,0,0,43,0,0,40,43, 41,0,0,41,0,0,45,0,41,0,0,40,0,43,0,40];
@@ -2380,7 +2390,7 @@ function playCutscene(done){
 }
 function skipCutscene(){ if(cut.on&&performance.now()-cut.t0>350) endCutscene(); }
 function endCutscene(){
-  if(!cut.on) return; cut.on=false; clearTimeout(cut.timer); clearTimeout(cut.cap); duckSong(false);
+  if(!cut.on) return; cut.on=false; clearTimeout(cut.timer); clearTimeout(cut.cap); duckSong(false); audioWake();
   const v=$('csVid'), scr=$('scr-cutscene'), d=cut.done; cut.done=null; scr.classList.add('out');
   setTimeout(()=>{ try{ v.pause(); }catch(e){} v.classList.remove('on'); v.removeAttribute('src'); try{ v.load(); }catch(e){}   /* free the video decoder before the fight */
     if(d) d(); },240);
@@ -2571,7 +2581,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='e3cc86e267', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='202587db29', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2838,7 +2848,7 @@ function bindUI(){
   addEventListener('keyup',e=>keys.delete(e.code));
   addEventListener('blur',()=>{ keys.clear(); for(const b in touchIn) touchIn[b]=false; });
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&cut.on){ const v=$('csVid'); if(v.paused&&!v.ended) v.play().catch(()=>{}); }
-    if(document.hidden){ pauseGame(); if(AU.ctx) AU.ctx.suspend().catch(()=>{}); } else if(AU.ctx) AU.ctx.resume().catch(()=>{}); });
+    if(document.hidden){ pauseGame(); if(AU.ctx) AU.ctx.suspend().catch(()=>{}); } else audioWake(); });
   addEventListener('resize',()=>{ layout(); fitFigures(); if(current==='select'&&sel.mode==='boss') fitBossNames(); });
   addEventListener('orientationchange',()=>setTimeout(layout,200));
   document.addEventListener('gesturestart',e=>e.preventDefault());

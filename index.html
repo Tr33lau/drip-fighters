@@ -729,6 +729,9 @@ function wantSong(file){
   fetch(file).then(r=>r.ok?r.arrayBuffer():null).then(ab=>ab&&new Promise((res,rej)=>{ const p=AU.ctx.decodeAudioData(ab,res,rej); if(p&&p.catch) p.catch(rej); }))
     .then(b=>{ AU.loadingSong=null; if(!b) return; AU.bufs[file]=b; if(AU.want===file) switchSong(file,b); }).catch(()=>{ AU.loadingSong=null; });
 }
+const SONG_DUCK=0.35;   /* song level under a cutscene's own sound */
+function songLevel(){ return AU.duck?SONG_DUCK:1; }
+function duckSong(on){ AU.duck=on; const c=AU.ctx; if(c&&AU.songGain&&AU.songSrc) AU.songGain.gain.setTargetAtTime(songLevel(),c.currentTime,on?0.15:0.6); }
 function songPause(){   /* stop the song where it is; songResume picks up from the same spot */
   const c=AU.ctx; AU.musicPaused=true; if(!c||!AU.songSrc||AU.songHeld) return;
   const s=AU.songSrc, b=s.buffer; AU.songHeld={key:AU.songKey,buf:b,off:((c.currentTime-(AU.songT0||0))%b.duration+b.duration)%b.duration};
@@ -736,13 +739,13 @@ function songPause(){   /* stop the song where it is; songResume picks up from t
 function songResume(){
   AU.musicPaused=false; const c=AU.ctx, h=AU.songHeld; AU.songHeld=null; if(!c||!h) return;
   if(AU.want!==h.key){ wantSong(AU.want); return; }
-  const t=c.currentTime, s=c.createBufferSource(), g=c.createGain(); s.buffer=h.buf; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(1,t+0.02,0.12);
+  const t=c.currentTime, s=c.createBufferSource(), g=c.createGain(); s.buffer=h.buf; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(songLevel(),t+0.02,0.12);
   s.connect(g); g.connect(AU.mus); s.start(t+0.02,h.off); AU.songSrc=s; AU.songGain=g; AU.songKey=h.key; AU.songT0=t+0.02-h.off; }
 function switchSong(file,b){
   const c=AU.ctx, t=c.currentTime; AU.songHeld=null; AU.musicPaused=false;
   if(AU.songSrc){ const old=AU.songSrc, og=AU.songGain, ok=AU.songKey; og.gain.setTargetAtTime(0,t,0.25); try{ old.stop(t+1.2); }catch(e){}
     if(ok&&ok!=='splash.mp3'&&ok!==file) delete AU.bufs[ok]; }   /* free the stage song's memory */
-  const s=c.createBufferSource(), g=c.createGain(); s.buffer=b; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(1,t+0.05,0.3);
+  const s=c.createBufferSource(), g=c.createGain(); s.buffer=b; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(songLevel(),t+0.05,0.3);
   s.connect(g); g.connect(AU.mus); s.start(t+0.05); AU.songSrc=s; AU.songGain=g; AU.songKey=file; AU.songT0=t+0.05;
 }
 /* Recorded effects (punch impact, special throw, block), shipped as files next to the page; the synth sounds play if they can't load */
@@ -2076,7 +2079,7 @@ function setModes(open){ const m=$('modes'); m.hidden=!open; $('playBtn').setAtt
   if(open&&(finePointer||gp.active)){ const f=m.querySelector('.mcard:not([hidden])'); if(f) f.focus({preventScroll:true}); } }
 function closeModes(){ if($('modes').hidden) return; setModes(false); sfx.ui(); $('playBtn').focus({preventScroll:true}); }
 const sel={mode:null,step:0,cursor:0,picks:[]};
-function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; if(mode==='boss') cutPrime(); show('select'); renderSelect(); }
+function chooseMode(mode){ sfx.confirm(); wantSong('splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; if(mode==='boss'){ cutPrime(); preloadSong(songFor(BOSS_STAGE)); } show('select'); renderSelect(); }
 let FIG_ASPECT=0.66;   /* widest fighter picture (width / height), measured at boot */
 function fitFigure(box,img){
   if(!box||!img||box.offsetParent===null) return;
@@ -2192,14 +2195,14 @@ const cut={on:false,started:false,t0:0,done:null,timer:null,cap:null};
 function cutPrime(){ const v=$('csVid'); if(!v.getAttribute('src')){ v.preload='auto'; v.src=BOSS_INTRO; try{ v.load(); }catch(e){} } }   /* start buffering on the select screen */
 function preloadSong(file){ if(!AU.ctx||AU.bufs[file]||AU.loadingSong===file) return; AU.loadingSong=file;
   fetch(file).then(r=>r.ok?r.arrayBuffer():null).then(ab=>ab&&new Promise((res,rej)=>{ const p=AU.ctx.decodeAudioData(ab,res,rej); if(p&&p.catch) p.catch(rej); }))
-    .then(b=>{ AU.loadingSong=null; if(b) AU.bufs[file]=b; }).catch(()=>{ AU.loadingSong=null; }); }
+    .then(b=>{ AU.loadingSong=null; if(!b) return; AU.bufs[file]=b; if(AU.want===file&&AU.songKey!==file) switchSong(file,b); }).catch(()=>{ AU.loadingSong=null; }); }
 function playCutscene(done){
   const v=$('csVid'); cut.on=true; cut.started=false; cut.done=done; cut.t0=performance.now();
   if(!v.getAttribute('src')) v.src=BOSS_INTRO;
   try{ v.currentTime=0; }catch(e){}
   v.muted=!settings.sound; v.volume=1; v.classList.remove('on'); $('scr-cutscene').classList.remove('out'); $('csSound').hidden=true; $('csLoad').hidden=true;
-  show('cutscene'); songPause(); try{ speechSynthesis.cancel(); }catch(e){}
-  preloadSong(songFor(BOSS_STAGE));
+  show('cutscene'); try{ speechSynthesis.cancel(); }catch(e){}
+  duckSong(true); wantSong(songFor(BOSS_STAGE));   /* Yahhh plays under the scene and keeps going into the fight */
   const p=v.play();   /* called straight from the tap / key press, so the scene can play with sound */
   if(p&&p.catch) p.catch(()=>{ if(!cut.on) return; v.muted=true;   /* sound blocked by the browser: play silently, offer sound */
     v.play().then(()=>{ if(cut.on&&settings.sound) $('csSound').hidden=false; }).catch(()=>endCutscene()); });
@@ -2208,7 +2211,7 @@ function playCutscene(done){
 }
 function skipCutscene(){ if(cut.on&&performance.now()-cut.t0>350) endCutscene(); }
 function endCutscene(){
-  if(!cut.on) return; cut.on=false; clearTimeout(cut.timer); clearTimeout(cut.cap);
+  if(!cut.on) return; cut.on=false; clearTimeout(cut.timer); clearTimeout(cut.cap); duckSong(false);
   const v=$('csVid'), scr=$('scr-cutscene'), d=cut.done; cut.done=null; scr.classList.add('out');
   setTimeout(()=>{ try{ v.pause(); }catch(e){} v.classList.remove('on'); v.removeAttribute('src'); try{ v.load(); }catch(e){}   /* free the video decoder before the fight */
     if(d) d(); },240);
@@ -2399,7 +2402,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='007a9d8066', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='ed3e415cba', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

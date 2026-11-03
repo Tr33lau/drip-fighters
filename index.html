@@ -503,6 +503,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
 .pb[data-b="p"]{background:#f2c14e}
 .pb[data-b="k"]{background:#6cc4ff}
 .pb[data-b="s"]{background:#ff6fb1}
+.pb[data-b="s"].out{background:#2b2733;color:#6d6678}
 .pb[data-b="s"].cool{background:conic-gradient(#ff6fb1 calc(var(--k,0)*360deg),#4a3040 0);color:rgba(255,255,255,.6)}
 .pb[data-b="x"]{background:#2b2733;color:#6d6678;font-size:calc(var(--bs,70px)*.18)}
 .pb[data-b="x"].ready{background:conic-gradient(from 0deg,#fff1b8,#f2c14e,#c8922a,#fff1b8);color:#1a1206;animation:pulse .7s ease-in-out infinite alternate}
@@ -524,7 +525,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
   <div id="pad" hidden>
     <div id="stick" aria-label="Move: drag to walk, up to jump, down to crouch, hold back to block"><div id="knob"></div></div>
     <div id="btns">
-      <button class="pb" data-b="s" aria-label="Special">SP<small>special</small></button>
+      <button class="pb" data-b="s" aria-label="Special">SP<small>4 left</small></button>
       <button class="pb" data-b="x" aria-label="Super">SUPER</button>
       <button class="pb" data-b="p" aria-label="Punch">P<small>punch</small></button>
       <button class="pb" data-b="k" aria-label="Kick">K<small>kick</small></button>
@@ -732,7 +733,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
         <tr><td>Down + Punch</td><td>Low jab.</td></tr>
         <tr><td>Down + Kick</td><td>Sweep. Hits low and knocks down.</td></tr>
         <tr><td>Jump + P or K</td><td>Air attack. Must be blocked standing.</td></tr>
-        <tr><td>Special</td><td>SP button, or ↓ ↘ → + Punch. Cancels from a punch or kick that connects. Recharges for 1.5 seconds after each use.</td></tr>
+        <tr><td>Special</td><td>SP button, or ↓ ↘ → + Punch. Cancels from a punch or kick that connects. 4 per round, and it recharges for 1.5 seconds after each use.</td></tr>
         <tr><td>Super</td><td>When the gold chain is full. Fills as you hit and get hit.</td></tr>
         <tr><td>Block</td><td>Hold away from your opponent. Hold down-back to block sweeps.</td></tr>
       </table>
@@ -1493,7 +1494,7 @@ class Human{
     return o;
   }
 }
-const SP_CD=90;   /* frames between specials (1.5 s) */
+const SP_CD=90, SP_MAX=4;   /* frames between specials (1.5 s); specials per fighter per round */
 const AI_LV=[
   {react:24,block:.18,aggro:.42,combo:.12,aa:.12,proj:.16,jump:.07},
   {react:13,block:.5,aggro:.58,combo:.5,aa:.4,proj:.24,jump:.09},
@@ -1516,6 +1517,7 @@ class AI{
       else if(Math.random()<P.block+0.1){ this.blockT=Math.ceil(dist/Math.abs(p.vx))+8; this.blockLow=false; } } } }
     if(this.blockT>0){ this.blockT--; hold(-1,this.blockLow); return out; }
     if(f.state==='jump'&&!f.airAtk&&f.vy<4&&gap<110&&Math.random()<0.3) press(Math.random()<.6?'k':'p');
+    if(this.q.length&&this.q.some(x=>x.b==='s')&&this.q[0].b==='s') this.spNext=game.tick+300+Math.floor(Math.random()*240);   /* 5–9 s before the next one */
     if(this.q.length){ const it=this.q[0]; if(it.w>0){ it.w--; hold(this.intent.t>0?this.intent.dir:0,it.down); } else { this.q.shift(); if(it.b==='u'){ out.u=true; hold(it.dir||0,false);} else { press(it.b); if(it.down) out.d=true; } } return out; }
     if(--this.wait<=0&&['idle','walk','crouch'].includes(f.state)){ this.decide(f,o,gap); this.wait=P.react+Math.floor(Math.random()*P.react); }
     if(this.intent.t>0){ this.intent.t--; hold(this.intent.dir,this.intent.down); }
@@ -1524,7 +1526,7 @@ class AI{
   decide(f,o,gap){
     const P=this.P, r=Math.random(), hasProj=!!f.moves.special.proj, id=f.ch.id;
     const I=(dir,t,down=false)=>{ this.intent={dir,t,down}; };
-    const projFree=hasProj&&f.spReady(), spOK=f.spReady();
+    const spOK=f.spReady()&&game.tick>=(this.spNext||0), projFree=hasProj&&spOK;
     if(f.meter>=100&&(gap<80||(id==='fresh'&&gap<220))&&r<0.55){ this.q=[{w:0,b:'x'}]; return; }
     const approaching=o.y>30&&Math.sign(o.vx)===Math.sign(f.x-o.x);
     if(approaching&&gap<180&&Math.random()<P.aa){ this.q=(id==='angel'&&f.meter>=100)?[{w:0,b:'x'}]:[{w:2,b:'k'}]; return; }
@@ -1567,7 +1569,7 @@ class Fighter{
     this.hp=this.ch.hp; this.hpLag=this.ch.hp; this.lagDelay=0;
     this.state='idle'; this.t=0; this.stun=0; this.stunMax=1; this.move=null; this.mt=0; this.hitIds=new Set();
     this.buf={p:0,k:0,s:0,x:0}; this.hist=[]; this.combo=0; this.comboShow=0; this.comboT=0; this.juggle=0;
-    this.invuln=0; this.flash=0; this.proj=null; this.spCD=0; this.airAtk=false; this.jumpDir=0; this.walkDir=0;
+    this.invuln=0; this.flash=0; this.proj=null; this.spCD=0; this.spLeft=SP_MAX; this.airAtk=false; this.jumpDir=0; this.walkDir=0;
     this.dp={lean:0,leg:1,sx:1,sy:1,rot:0,dx:0,dy:0,piv:0}; this.ghosts=[]; this.curAnim=null; this.age=0; this.blend=null; this.animKey=undefined; this.lastDesc=null; this.koLanded=false;
     this.holdBack=false; this.holdDown=false; this.crouchStun=false; this.moveSerial=0; this.atWall=0;
     this.moveHit=false; this.moveBlocked=false; this.landed=false; this.slam=false;
@@ -1582,8 +1584,8 @@ class Fighter{
   endMove(){ const air=this.y>0; this.move=null; if(air){ this.setState('jump'); this.airAtk=true; this.jumpDir=0; } else this.setState(this.holdDown?'crouch':'idle'); }
   qcf(){ const h=this.hist; let st=0; for(let i=h.length-1,n=0;i>=0&&n<18;i--,n++){ const d=h[i]; if(st===0){ if(d===6) st=1; } else if(st===1){ if(d===3) st=2; else if(d===2) return true; } else if(st===2){ if(d===2||d===1) return true; } } return false; }
   launchJump(){ this.flipJump=this.jumpSet==='flip'||this.jumpSet==='fflip'; this.vy=this.ch.jump; this.vx=this.jumpDir*this.face*this.ch.jx; this.y=1; this.airAtk=false; this.setState('jump'); sfx.jump(); dust(this.x,2,0); }
-  spReady(){ return !(this.spCD>0)&&!(this.moves.special.proj&&this.proj); }
-  trySpecial(){ if(!this.spReady()) return false; this.startMove(this.moves.special); this.spCD=SP_CD; return true; }
+  spReady(){ return this.spLeft>0&&!(this.spCD>0)&&!(this.moves.special.proj&&this.proj); }
+  trySpecial(){ if(!this.spReady()) return false; this.startMove(this.moves.special); this.spCD=SP_CD; this.spLeft--; return true; }
   doSuper(){ this.meter=0; this.startMove(this.moves.super); game.flash={f:this,t:44,max:44}; game.hype=1; sfx.superFlash(); for(let i=0;i<14;i++) sparkle(this.x+rnd(-50,50),this.y+rnd(20,this.ch.h),this.ch.color); }
   update(inp,opp){
     this.t++; this.age=(this.age||0)+1; this.landAge=(this.landAge??99)+1; if(this.riseT>0) this.riseT--;
@@ -2118,12 +2120,15 @@ function drawHUD(c){
     c.drawImage(f.ch.face,pcx-pr,pcy-pr*1.02,pr*2,pr*2); if(f.alt){ c.fillStyle='rgba(60,40,140,.45)'; c.fillRect(pcx-pr,pcy-pr,pr*2,pr*2); } c.restore();
     c.save(); c.shadowColor=col; c.shadowBlur=8; c.lineWidth=Math.max(3,4*u); c.strokeStyle=col; c.beginPath(); c.arc(pcx,pcy,pr,0,6.283); c.stroke(); c.restore();
     /* special recharge badge on the portrait: pink and lit when ready, fills clockwise while recharging */
-    { const sr=Math.max(8,pr*0.4), sx=pcx, sy=pcy+pr*0.92, ready=f.spReady(), k=f.spCD>0?1-f.spCD/SP_CD:1;
+    { const sr=Math.max(8,pr*0.4), sx=pcx, sy=pcy+pr*0.92, ready=f.spReady(), out=!(f.spLeft>0), k=out?0:f.spCD>0?1-f.spCD/SP_CD:1;
       c.save(); c.beginPath(); c.arc(sx,sy,sr+2,0,6.283); c.fillStyle='#07060a'; c.fill();
       c.beginPath(); c.arc(sx,sy,sr,0,6.283);
       if(ready){ c.fillStyle='#ff6fb1'; c.shadowColor='#ff6fb1'; c.shadowBlur=8; c.fill(); }
       else { c.fillStyle='#2a1a24'; c.fill(); c.beginPath(); c.moveTo(sx,sy); c.arc(sx,sy,sr,-1.5708,-1.5708+6.2832*k); c.closePath(); c.fillStyle='rgba(255,111,177,.5)'; c.fill(); }
-      c.restore(); hudText(c,'SP',sx,sy+0.5,Math.max(8,sr*0.9),'center','middle',ready?'#fff':'rgba(255,255,255,.55)'); }
+      c.restore(); hudText(c,'SP',sx,sy+0.5,Math.max(8,sr*0.9),'center','middle',ready?'#fff':out?'rgba(255,255,255,.3)':'rgba(255,255,255,.55)');
+      const dr=Math.max(2.4,sr*0.24), gap=dr*2.9, py=sy+sr+dr+4;
+      for(let i=0;i<SP_MAX;i++){ const dx=sx+(i-(SP_MAX-1)/2)*gap, on=i<f.spLeft; c.beginPath(); c.arc(dx,py,dr+1.2,0,6.283); c.fillStyle='#07060a'; c.fill();
+        c.beginPath(); c.arc(dx,py,dr,0,6.283); c.fillStyle=on?'#ff6fb1':'rgba(255,255,255,.14)'; c.fill(); } }
     /* name */
     const nx=L?pcx+pr+6:pcx-pr-6, ny=by+bh+5;
     hudText(c,f.ch.name+(f.alt?' ·II':''),nx,ny,nameSz,L?'left':'right','top');
@@ -2184,7 +2189,8 @@ function frame(now){
   else if(!game.paused&&game.F&&!MENU_SCREENS[current]){ acc+=dt; let n=0; while(acc>=1000/60&&n<5){ acc-=1000/60; step(); n++; } if(n>=5) acc=0; }
   render(); if(current==='select') drawSelIdle(now);
   const sb=document.querySelector('.pb[data-b="x"]'); if(sb&&game.F&&game.mode!=='demo'){ const me=game.F[game.mode==='online'?NET.me:0]; sb.classList.toggle('ready',me.meter>=100);
-    const spb=document.querySelector('.pb[data-b="s"]'); if(spb){ const ready=me.spReady(); spb.classList.toggle('cool',!ready); if(!ready) spb.style.setProperty('--k',(me.spCD>0?1-me.spCD/SP_CD:1).toFixed(3)); } }
+    const spb=document.querySelector('.pb[data-b="s"]'); if(spb){ const ready=me.spReady(), out=!(me.spLeft>0); spb.classList.toggle('cool',!ready&&!out); spb.classList.toggle('out',out);
+      const sm=spb.querySelector('small'), lt=out?'none left':me.spLeft+' left'; if(sm&&sm.textContent!==lt) sm.textContent=lt; if(!ready) spb.style.setProperty('--k',(me.spCD>0?1-me.spCD/SP_CD:1).toFixed(3)); } }
 }
 
 /* ================= SCREENS & FLOW ================= */
@@ -2565,7 +2571,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='6091e25f32', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='e3cc86e267', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2702,7 +2708,7 @@ function netCheckRematch(){ if(!NET.wantRematch||!NET.oppRematch) return; if(NET
 const SNAP_SKIP=new Set(['ch','ctrl','opp','src','moves','blend','lastDesc','lastPose','ghosts','dp','animKey','curAnim']);
 const fIdx=f=>f?game.F.indexOf(f):-1, fRef=i=>i>=0?game.F[i]:null;
 function netHash(){ const r=v=>Math.round((+v||0)*1000); let s=game.phase+'|'+game.pt+'|'+game.timer+'|'+game.tc+'|'+game.stop+'|'+game.round;
-  for(const f of game.F) s+='|'+[r(f.x),r(f.y),r(f.vx),r(f.vy),r(f.hp),r(f.meter),f.state,f.t,f.mt,f.stun,f.face,f.rounds,f.combo,f.spCD|0,f.move?f.moveSerial:-1].join(',');
+  for(const f of game.F) s+='|'+[r(f.x),r(f.y),r(f.vx),r(f.vy),r(f.hp),r(f.meter),f.state,f.t,f.mt,f.stun,f.face,f.rounds,f.combo,f.spCD|0,f.spLeft|0,f.move?f.moveSerial:-1].join(',');
   for(const p of projs) if(p.alive) s+='|p'+r(p.x)+','+r(p.yy);
   let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
 function netSnap(){

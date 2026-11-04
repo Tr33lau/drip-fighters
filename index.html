@@ -839,7 +839,7 @@ async function loadSong(){
     AU.bufs['splash.mp3']=AU.song; wantSong(AU.want); }catch(e){ AU.song=null; }
 }
 /* Stage songs: some stages have their own track; everywhere else plays "Splash". Songs cross-fade; only Splash stays decoded between matches. */
-const SONG_FOR_STAGE={crank:'yahhh.mp3'};
+const SONG_FOR_STAGE={crank:'yahhh.mp3', quarter:'flee.mp3', gym:'blow.mp3', roof:'blow.mp3', arcade:'cantgo.mp3'};   /* Court · Malo's rooftop · boxing gym · CEO's top floor · Angel's arcade */
 AU.bufs={}; AU.want='splash.mp3'; AU.songKey=null; AU.songGain=null;
 function songFor(stageId){ return SONG_FOR_STAGE[stageId]||'splash.mp3'; }
 function wantSong(file){
@@ -866,7 +866,8 @@ function songResume(){
 function switchSong(file,b){
   const c=AU.ctx, t=c.currentTime; AU.songHeld=null; AU.musicPaused=false;
   if(AU.songSrc){ const old=AU.songSrc, og=AU.songGain, ok=AU.songKey; og.gain.setTargetAtTime(0,t,0.25); try{ old.stop(t+1.2); }catch(e){}
-    if(ok&&ok!=='splash.mp3'&&ok!==file) delete AU.bufs[ok]; }   /* free the stage song's memory */
+    if(ok&&ok!=='splash.mp3'&&ok!==file) delete AU.bufs[ok]; }   /* free the old stage song's memory */
+  if(smallSheets()&&file!=='splash.mp3'){ delete AU.bufs['splash.mp3']; AU.song=null; }   /* phones: the menu song is let go during a fight and loaded again after */
   const s=c.createBufferSource(), g=c.createGain(); s.buffer=b; s.loop=true; g.gain.setValueAtTime(0.0001,t); g.gain.setTargetAtTime(songLevel(),t+0.05,0.3);
   s.connect(g); g.connect(AU.mus); s.start(t+0.05); AU.songSrc=s; AU.songGain=g; AU.songKey=file; AU.songT0=t+0.05;
 }
@@ -2584,7 +2585,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='24c1f16427', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='40db132c06', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

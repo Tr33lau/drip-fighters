@@ -783,29 +783,29 @@ const ROSTER = [
    h:300, bw:74, hip:0.46, hp:1100, power:1.15, walk:2.5, jump:13.2, jx:3.7,
    /* video-clip animation; applied only if his sprite sheets load. Frame area has headroom above him for jumps. hit = [center, width, bottom, height] measured from his clips */
    animCfg:{anim:ANIMS.boss, dir:true, drawH:417.8, bodyH:306.4, ax:0.5422, footPad:0.0411, hip:0.335, walk:1.8, walkB:1.35,
-     fist:{jab:[142,0.766],cross:[144,0.766]}, hit:{kick:[140,100,0.5,0.27], sweep:[80,90,0,0.16], akick:[120,130,0.3,0.55]}},
+     fist:{jab:[142,0.766],cross:[144,0.766]}, hit:{kick:[117.5,145,0.45,0.32], sweep:[80,90,0,0.16], akick:[152.5,145,0.4,0.46]}},
    color:'#f2c14e', stats:[5,2,5], spName:'Gold Rush', suName:'Hostile Takeover', stage:'roof',
    quotes:["I don't chase. I attract.","Business is handled."]},
   {id:'nola', name:'MALO', speak:'Malo', size:1.2233, sub:'Crescent City Kid', style:'Speed', blurb:'Quick hands, quicker feet. Never stands still.',
    h:250, bw:58, hip:0.46, hp:1000, power:0.94, walk:3.7, jump:14.4, jx:4.5,
-   animCfg:{anim:ANIMS.nola, dir:true, drawH:240.9, ax:0.4886, footPad:0.0183, hip:0.48, fist:{jab:[90,0.744],cross:[118,0.751],cpunch:[119.2,0.559]}, hit:{kick:[127,100,0.42,0.26]}},
+   animCfg:{anim:ANIMS.nola, dir:true, drawH:240.9, ax:0.4886, footPad:0.0183, hip:0.48, fist:{jab:[90,0.744],cross:[118,0.751],cpunch:[119.2,0.559]}, hit:{kick:[107.1,140.6,0.38,0.3]}},
    color:'#a46bff', stats:[2,5,4], spName:'Fleur Flash', suName:'Second Line Storm', stage:'quarter',
    quotes:["Small? Nah. Fast.","Fleur on my chest, crown on my head."]},
   {id:'angel', name:'ANGEL', size:1.071, sub:'Heaven Sent', style:'Air', blurb:'Owns the sky. Jump at her and pay for it.',
    h:270, bw:56, hip:0.5, hp:950, power:1.0, walk:3.3, jump:14.8, jx:4.1,
    animCfg:{anim:ANIMS.angel, dir:true, drawH:345.56, ax:0.4702, footPad:0.0885, hip:0.4571, fist:{jab:[98.8,0.685],cross:[117.5,0.668],cpunch:[103.0,0.557]},
-     hit:{kick:[180,110,0.62,0.26], sweep:[140,110,0,0.16], akick:[120,110,0.4,0.42]}},
+     hit:{kick:[138.7,193.3,0.5,0.38], sweep:[118.6,153.1,0,0.16], akick:[120,110,0.4,0.42]}},
    color:'#ff6fb1', stats:[3,4,3], spName:'Halo Toss', suName:'Wings Up', stage:'arcade',
    quotes:["Not a hair out of place.","Name's on the chain for a reason."]},
   {id:'fresh', name:'TREELAU', speak:'Tree Lau', size:1.1215, sub:'Fresh Out the Box', style:'Rushdown', blurb:'Slides in low and never lets up.',
    h:272, bw:62, hip:0.45, hp:1000, power:1.0, walk:3.1, jump:14.2, jx:4.2,
    animCfg:{anim:ANIMS.fresh, dir:true, drawH:309.4, ax:0.5359, footPad:0.0858, hip:0.477, walk:2.5, walkB:1.7,
-     fist:{jab:[108,0.77],cross:[106,0.76],cpunch:[179,0.58]}},
+     fist:{jab:[108,0.77],cross:[106,0.76],cpunch:[179,0.58]}, hit:{cpunch:[110.6,140.9,0.24,0.24]}},
    color:'#6cc4ff', stats:[4,3,4], spName:'Slide Through', suName:'Limited Drop', stage:'block',
    quotes:["Not one scuff on the kicks.","Fresh out the box. Every time."]},
   {id:'draco', name:'DRACO', sub:'Superstar Swag', style:'Flash', blurb:'All drip, no off switch. Throws stars and never stops posing.',
    h:300, bw:60, hip:0.46, hp:1000, power:1.02, walk:3.4, jump:14.4, jx:4.3,
-   animCfg:{anim:ANIMS.draco, dir:true, drawH:323.7, ax:0.4210, footPad:0.0383, hip:0.46, fist:{jab:[103.4,0.712],cross:[119.1,0.704],cpunch:[110.5,0.624]}, hit:{kick:[192,110,0.66,0.26],sweep:[190,130,0,0.16],akick:[118,110,0.36,0.42],akickF:[122,110,0.3,0.42]}},
+   animCfg:{anim:ANIMS.draco, dir:true, drawH:323.7, ax:0.4210, footPad:0.0383, hip:0.46, fist:{jab:[103.4,0.712],cross:[119.1,0.704],cpunch:[110.5,0.624]}, hit:{kick:[146,202,0.55,0.37],sweep:[150,210,0,0.16],akick:[118,110,0.36,0.42],akickF:[122,110,0.3,0.42]}},
    color:'#ff4b4b', stats:[4,4,3], spName:'Shooting Star', suName:'Flex Mode', stage:'crank',
    quotes:["Drip too hard. Can't stop it.","Stars on my feet, stars in the sky."]},
 ];
@@ -1301,7 +1301,8 @@ function buildMoves(ch){
     mv.jab=Object.assign(normal({kind:'punch',su:5,ac:3,re:9,dmg:42,x:fj[0]-28,w:66,y:H*0.62,h:H*0.2,level:'mid',hs:16,bs:10,push:5,cancel:['jab','kick','special','super'],trail:'punch'}),{anim:'jab',fistX:fj[0],fistY:H*fj[1]});
     mv.jab2=Object.assign(normal({kind:'punch',su:7,ac:3,re:12,dmg:56,x:fc[0]-30,w:72,y:H*0.6,h:H*0.22,level:'mid',hs:18,bs:12,push:7,heavy:true,cancel:['kick','special','super'],trail:'punch'}),{anim:'cross',fistX:fc[0],fistY:H*fc[1]});
     if(ch.anim.cpunch&&ch.fist.cpunch){ const fp=ch.fist.cpunch;
-      mv.cjab=Object.assign(normal({kind:'cpunch',crouch:true,su:6,ac:4,re:12,dmg:40,x:fp[0]-34,w:72,y:H*0.24,h:H*0.24,level:'mid',hs:15,bs:10,push:6,cancel:['cjab','sweep','special','super'],trail:'punch'}),{anim:'cpunch',fistX:fp[0],fistY:H*fp[1]}); }
+      mv.cjab=Object.assign(normal({kind:'cpunch',crouch:true,su:6,ac:4,re:12,dmg:40,x:fp[0]-34,w:72,y:H*0.24,h:H*0.24,level:'mid',hs:15,bs:10,push:6,cancel:['cjab','sweep','special','super'],trail:'punch'}),{anim:'cpunch',fistX:fp[0],fistY:H*fp[1]});
+      if(ch.hit&&ch.hit.cpunch){ const hc=ch.hit.cpunch, h=mv.cjab.hits[0]; h.x=hc[0]; h.w=hc[1]; h.y=H*hc[2]; h.h=H*hc[3]; } }
     if(ch.anim.akick&&ch.hit&&ch.hit.akick){ const ha=ch.hit.akick;
       mv.akick=Object.assign(normal({kind:'akick',air:true,su:5,ac:12,re:4,dmg:74,x:ha[0],w:ha[1],y:H*ha[2],h:H*ha[3],level:'high',hs:19,bs:12,push:6,heavy:true,trail:'akick'}),{anim:'akick'}); }
     if(ch.anim.akickF&&ch.hit&&ch.hit.akickF){ const ha=ch.hit.akickF;   /* a second jump kick for forward / back jumps */
@@ -2586,7 +2587,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='712004f13c', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='02ac0fdb90', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

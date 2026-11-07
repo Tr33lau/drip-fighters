@@ -783,7 +783,7 @@ const ROSTER = [
   {id:'boss', name:'CEO', speak:'C. E. O.', size:1.0, sub:'The Executive', style:'Power', blurb:'Heavy hands, slow feet. Every hit costs you.',
    h:300, bw:74, hip:0.46, hp:1100, power:1.15, walk:2.5, jump:13.2, jx:3.7,
    /* video-clip animation; applied only if his sprite sheets load. Frame area has headroom above him for jumps. hit = [center, width, bottom, height] measured from his clips */
-   animCfg:{anim:ANIMS.boss, dir:true, drawH:417.8, bodyH:306.4, ax:0.5422, footPad:0.0411, hip:0.335, walk:1.8, walkB:1.35,
+   animCfg:{anim:ANIMS.boss, dir:true, drawH:417.8, bodyH:306.4, ax:0.5422, footPad:0.0411, hip:0.335, walk:3.0, walkB:2.4,
      fist:{jab:[142,0.766],cross:[144,0.766]}, hit:{kick:[117.5,145,0.45,0.32], sweep:[80,90,0,0.16], akick:[152.5,145,0.4,0.46]}},
    color:'#f2c14e', stats:[5,2,5], spName:'Gold Rush', suName:'Hostile Takeover', stage:'roof',
    quotes:["I don't chase. I attract.","Business is handled."]},
@@ -800,7 +800,7 @@ const ROSTER = [
    quotes:["Not a hair out of place.","Name's on the chain for a reason."]},
   {id:'fresh', name:'TREELAU', speak:'Tree Lau', size:1.1215, sub:'Fresh Out the Box', style:'Rushdown', blurb:'Slides in low and never lets up.',
    h:272, bw:62, hip:0.45, hp:1000, power:1.0, walk:3.1, jump:14.2, jx:4.2,
-   animCfg:{anim:ANIMS.fresh, dir:true, drawH:309.4, ax:0.5359, footPad:0.0858, hip:0.477, walk:2.5, walkB:1.7,
+   animCfg:{anim:ANIMS.fresh, dir:true, drawH:309.4, ax:0.5359, footPad:0.0858, hip:0.477, walk:2.675, walkB:2.14,
      fist:{jab:[108,0.77],cross:[106,0.76],cpunch:[179,0.58]}, hit:{cpunch:[110.6,140.9,0.24,0.24]}},
    color:'#6cc4ff', stats:[4,3,4], spName:'Slide Through', suName:'Limited Drop', stage:'block',
    quotes:["Not one scuff on the kicks.","Fresh out the box. Every time."]},
@@ -2594,7 +2594,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='69f388350b', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='9083fb2f96', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

@@ -903,11 +903,11 @@ function switchSong(file,b){
   s.connect(g); g.connect(AU.mus); s.start(t+0.05); AU.songSrc=s; AU.songGain=g; AU.songKey=file; AU.songT0=t+0.05;
 }
 /* Recorded effects (punch impact, special throw, block), shipped as files next to the page; the synth sounds play if they can't load */
-const SFX_FILES={punch:'sfx/punch.mp3', throw:'sfx/throw.mp3', block:'sfx/block.mp3'}; AU.buf={};
+const SFX_FILES={punch:'sfx/punch.mp3', throw:'sfx/throw.mp3', block:'sfx/block.mp3', oowee:'sfx/oowee.mp3'}; AU.buf={};   /* oowee: Drip God's voice on Drip Splash */
 function loadSfx(){ for(const [k,u] of Object.entries(SFX_FILES)){ fetch(u).then(r=>r.ok?r.arrayBuffer():null).then(ab=>{ if(!ab||!AU.ctx) return;
   const p=AU.ctx.decodeAudioData(ab,b=>{ AU.buf[k]=b; },()=>{}); if(p&&p.catch) p.catch(()=>{}); }).catch(()=>{}); } }
-function playBuf(k,vol=1,rate=1){ const b=AU.buf[k]; if(!b||!AU.ctx) return false;
-  const s=AU.ctx.createBufferSource(), g=AU.ctx.createGain(); s.buffer=b; s.playbackRate.value=rate*(0.96+Math.random()*0.08); g.gain.value=vol; s.connect(g); g.connect(AU.sfx); s.start(); return true; }
+function playBuf(k,vol=1,rate=1,steady=false){ const b=AU.buf[k]; if(!b||!AU.ctx) return false;
+  const s=AU.ctx.createBufferSource(), g=AU.ctx.createGain(); s.buffer=b; s.playbackRate.value=steady?rate:rate*(0.96+Math.random()*0.08); g.gain.value=vol; s.connect(g); g.connect(AU.sfx); s.start(); return true; }
 /* iPhone / iPad: the system can stop the game's audio (state 'interrupted' or 'suspended'): after spoken text, a video with sound,
    a call or a notification. Audio is woken again straight away when possible, and on the next touch otherwise. */
 const IS_IOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -956,6 +956,7 @@ const sfx={
   jump(){ if(!sfxOK())return; tone('sine',260,420,0.08,0.12); },
   thud(){ if(!sfxOK())return; tone('sine',90,38,0.2,0.6); noise(0.12,0.25,'lowpass',600,120,1); },
   throwFx(){ if(!sfxOK())return; playBuf('throw',0.95); },
+  voice(k,vol=1){ if(!sfxOK())return; playBuf(k,vol,1,true); },   /* recorded voice lines play at their real pitch */
   shoot(k){ if(!sfxOK())return;
     if(k==='coin'){ tone('triangle',1320,1320,0.08,0.25); tone('triangle',1760,1760,0.18,0.2,null,AU.ctx.currentTime+0.06); noise(0.18,0.2,'bandpass',900,2600,2); }
     else if(k==='fleur'){ tone('sawtooth',300,900,0.16,0.22,null,null,2200); noise(0.14,0.25,'bandpass',800,3000,2); }
@@ -1386,7 +1387,7 @@ function buildMoves(ch){
   if(ch.id==='drip'){   /* Drip Splash: wrist flick (his jab frames), a spinning diamond leaves his fist (settings: DRIP_SPLASH) */
     const D=DRIP_SPLASH, sp=projSpecial('diamond',D.speed,D.dmg,D.radius), handX=(ch.fist&&ch.fist.jab)?ch.fist.jab[0]:B+30;
     sp.su=D.release; sp.cd=D.cooldown;
-    sp.update=function(f,t){ if(t===D.release){ const p=spawnProj(f,{kind:'diamond',vx:D.speed*f.face,dmg:D.dmg,chip:D.chip,r:D.radius,y:H*D.handY});
+    sp.update=function(f,t){ if(t===1) sfx.voice('oowee',0.85); if(t===D.release){ const p=spawnProj(f,{kind:'diamond',vx:D.speed*f.face,dmg:D.dmg,chip:D.chip,r:D.radius,y:H*D.handY});
       p.x=f.x+f.face*handX; p.push=D.push; p.hs=D.hitstop; p.bs=D.blockstun; p.heavy=false; sfx.shoot('diamond'); sfx.throwFx(); } };
     if(ch.anim&&ch.anim.jab){ sp.anim='jab'; sp.ac=6; sp.re=sp.total-D.release-6; sp.pose=()=>({lean:0,dx:0,rot:0,leg:1,sx:1}); }
     mv.special=sp; }
@@ -2741,7 +2742,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='2d57acff6f', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='da6dfec9ce', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

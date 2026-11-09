@@ -2686,7 +2686,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='46d624ea3b', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='1655604950', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2874,7 +2874,7 @@ function bindUI(){
   $('perfLower').addEventListener('click',()=>{ audioInit(); const q=qual(); setQuality(q==='high'?'low':'lowest'); $('perfTip').hidden=true; sfx.ui(); });
   $('perfX').addEventListener('click',()=>{ $('perfTip').hidden=true; perf.dismissed=true; });
   const s3=$('s3dBtn'); const sync3=()=>{ s3.setAttribute('aria-pressed',String(settings.stage3d!==false)); s3.textContent=settings.stage3d!==false?'3D stage on':'3D stage off'; };
-  s3.addEventListener('click',()=>{ audioInit(); settings.stage3d=!(settings.stage3d!==false); saveSettings(); sync3(); sfx.ui(); if(game.stage&&game.stage.id==='block') game.stage=stageFor('block'); }); sync3();
+  s3.addEventListener('click',()=>{ audioInit(); settings.stage3d=!(settings.stage3d!==false); saveSettings(); sync3(); sfx.ui(); if(game.stage) game.stage=stageFor(game.stage.id); }); sync3();
   const setTxt=(b,t)=>{ const sp=b.querySelector('span'); if(sp) sp.textContent=t; else b.textContent=t; };
   const syncS=()=>{ document.querySelectorAll('.sndBtn').forEach(b=>{ b.setAttribute('aria-pressed',String(settings.sound)); setTxt(b,b.classList.contains('cbtn')?(settings.sound?'Sound: On':'Sound: Off'):(settings.sound?'Sound on':'Sound off')); });
     document.querySelectorAll('.musBtn').forEach(b=>{ b.setAttribute('aria-pressed',String(settings.music)); setTxt(b,b.classList.contains('cbtn')?(settings.music?'Music: On':'Music: Off'):(settings.music?'Music on':'Music off')); }); };
@@ -3176,9 +3176,124 @@ function r3buildBlock(){
     r3front(mCrowd,cx-wd/2,cx+wd/2,SIDE,SIDE+hgt,z,[k*85/512,0,(k+1)*85/512,1],1+R()*6); }
   r3upload(S); return S;
 }
+
+/* ---------- THE SAUCE FACTORY, daytime (Drip God's block) ----------
+   The storefront art on real geometry: a sign band on a canopy with the sign letters standing off it, store windows set back
+   between pilasters, 3D bollards / tires / hydrant / pole sign, a brick neighbour and fence, trees and power lines behind,
+   lit by a sun. Facade px -> world: K units per px, centred so the camera's middle matches the painting's middle. */
+function r3push(m,p,n,u,v){ m.v.push(p[0],p[1],p[2],n[0],n[1],n[2],u,v,0); }
+function r3cyl(m,cx,cz,r,y0,y1,seg,top){
+  for(let i=0;i<seg;i++){ const a0=i/seg*6.2832, a1=(i+1)/seg*6.2832, c0=Math.cos(a0), s0=Math.sin(a0), c1=Math.cos(a1), s1=Math.sin(a1);
+    const A=[cx+c0*r,y1,cz+s0*r], B=[cx+c1*r,y1,cz+s1*r], C=[cx+c1*r,y0,cz+s1*r], D=[cx+c0*r,y0,cz+s0*r], n0=[c0,0,s0], n1=[c1,0,s1];
+    r3push(m,A,n0,i/seg,0); r3push(m,B,n1,(i+1)/seg,0); r3push(m,C,n1,(i+1)/seg,1);
+    r3push(m,A,n0,i/seg,0); r3push(m,C,n1,(i+1)/seg,1); r3push(m,D,n0,i/seg,1);
+    if(top){ r3push(m,[cx,y1,cz],[0,1,0],0.5,0.5); r3push(m,B,[0,1,0],0.5,0.5); r3push(m,A,[0,1,0],0.5,0.5); }
+  }
+}
+function r3dome(m,cx,cy,cz,r,seg){
+  const rings=5, P=(a,b)=>[cx+Math.cos(a)*Math.cos(b)*r, cy+Math.sin(b)*r, cz+Math.sin(a)*Math.cos(b)*r], N=(a,b)=>[Math.cos(a)*Math.cos(b),Math.sin(b),Math.sin(a)*Math.cos(b)];
+  for(let j=0;j<rings;j++){ const b0=j/rings*1.5708, b1=(j+1)/rings*1.5708;
+    for(let i=0;i<seg;i++){ const a0=i/seg*6.2832, a1=(i+1)/seg*6.2832, q=[[a0,b0],[a1,b0],[a1,b1],[a0,b1]];
+      for(const k of [0,1,2,0,2,3]) r3push(m,P(q[k][0],q[k][1]),N(q[k][0],q[k][1]),0.5,0.5); } }
+}
+function r3torus(m,cx,cy,cz,R,r,seg,ring){      /* lying flat, like a tire on the ground */
+  const P=(i,j)=>{ const a=i/seg*6.2832, b=j/ring*6.2832, w=R+r*Math.cos(b); return [[cx+w*Math.cos(a),cy+r*Math.sin(b),cz+w*Math.sin(a)],[Math.cos(b)*Math.cos(a),Math.sin(b),Math.cos(b)*Math.sin(a)]]; };
+  for(let i=0;i<seg;i++) for(let j=0;j<ring;j++){ const q=[P(i,j),P(i+1,j),P(i+1,j+1),P(i,j+1)]; for(const k of [0,1,2,0,2,3]) r3push(m,q[k][0],q[k][1],0,0); }
+}
+function r3flat(m,x0,x1,z0,z1,y,ny,tile){ r3quad(m,[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1],[0,ny,0],tile?[x0/tile,z0/tile,x1/tile,z1/tile]:[0,0,1,1]); }
+function r3side(m,x,z0,z1,y0,y1,nx){ r3quad(m,[x,y1,z0],[x,y1,z1],[x,y0,z1],[x,y0,z0],[nx,0,0],[0,0,1,1]); }
+function r3buildSauce(T){
+  const S={mats:[],lights:[],fog:hex3('#91c1e1'),fogRange:[3000,9000],ambSky:[0.60,0.62,0.68],ambGround:[0.40,0.37,0.35]};
+  const K=1.09, X0=650-748*K, X1=X0+1656*K, SW=10, FZ=-470, CAN=40, CURB=FZ+218, RY=r=>SW+(307-r)*K, PX=p=>X0+p*K;
+  const tex=n=>r3tex(T[n]), col=(h,o)=>r3mat(S,Object.assign({tint:hex3(h)},o||{}));
+  const grad=r3tex(r3canvas(64,64,(x,w,h)=>{ const g=x.createLinearGradient(0,0,0,h); g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); }));
+  const blob=r3tex(r3canvas(64,64,(x,w,h)=>{ const g=x.createRadialGradient(32,32,0,32,32,32); g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(0.6,'rgba(0,0,0,.55)'); g.addColorStop(1,'rgba(0,0,0,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); }));
+  const glowTex=r3tex(r3canvas(128,128,(x,w,h)=>{ const g=x.createRadialGradient(64,64,0,64,64,64); g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(0.3,'rgba(255,255,255,.4)'); g.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=g; x.fillRect(0,0,w,h); }));
+  // sun: very long range, so it lights everything about the same (always on: see r3draw)
+  const sp=[-4200,6200,5200], sd=Math.hypot(sp[0]-650,sp[1]-150,sp[2]-FZ), SR=200000, att=(1-sd/SR)**2;
+  S.lights.push({p:sp,c:[0.82,0.76,0.64].map(v=>v/att),r:SR,sun:true});
+  // sky: the painted sky, far back, its tree line just above the roofline
+  { const s=4.8, w=T.sky.width*s, ab=639*T.sky.height/789, yb=545-(T.sky.height-ab)*s;
+    r3front(r3mat(S,{map:tex('sky'),lit:0,fog:0}),650-w/2,650+w/2,yb,yb+T.sky.height*s,-4200); }
+  // tree line, power lines and trees behind the block (far to near)
+  r3front(r3mat(S,{map:tex('treeline'),alphaTest:0.5}),-3000,4500,0,813,-1500,[-3000/6500,0,4500/6500,1]);
+  const mWood=col('#6e5d4f'), poles=[-560,560,1680,2800], PZ=-1250, PH=540;
+  for(const x of poles){ r3box(mWood,mWood,mWood,x-7,x+7,0,PH,PZ-7,PZ+7); r3box(mWood,mWood,mWood,x-75,x+75,PH-34,PH-26,PZ-5,PZ+5); r3box(mWood,mWood,mWood,x-55,x+55,PH-74,PH-67,PZ-5,PZ+5); }
+  const mWire=r3mat(S,{map:R3.white,tint:[0.16,0.15,0.16],lit:0,blend:1,opacity:0.7});
+  for(let i=0;i<poles.length-1;i++) for(const [dx,y] of [[-70,PH-30],[70,PH-30],[0,PH-70]]){
+    const xa=poles[i]+dx, xb=poles[i+1]+dx, N=14;
+    for(let k=0;k<N;k++){ const t0=k/N, t1=(k+1)/N, sag=t=>28*4*t*(1-t), y0=y-sag(t0), y1=y-sag(t1), x0=xa+(xb-xa)*t0, x1=xa+(xb-xa)*t1;
+      r3quad(mWire,[x0,y0+1.4,PZ+8],[x1,y1+1.4,PZ+8],[x1,y1-1.4,PZ+8],[x0,y0-1.4,PZ+8],[0,0,1]); } }
+  const mTree=r3mat(S,{map:tex('tree'),alphaTest:0.5});
+  r3front(mTree,-1050,-330,190,710,-820); r3front(mTree,1760,2420,0,480,-720); r3front(mTree,2500,3100,40,480,-900);
+  // brick neighbour with the yellow USED TIRES band, wood fence on the right
+  r3box(r3mat(S,{map:tex('neighbor')}),col('#57535c'),col('#3a383e'),-1100,X0,SW,SW+304,FZ-560,FZ-102,[0,0,1,1]);
+  r3front(r3mat(S,{map:tex('fence')}),X1,3600,SW,SW+150,FZ-68,[X1/150,0,3600/150,1]);
+  // the building: sign band on a canopy, pilasters, store windows set back, coping on top
+  const mFac=r3mat(S,{map:tex('facade')}), mJamb=col('#3a3640'), mTrim=col('#2c2a31');
+  const face=(m,p0,p1,r0,r1,z)=>r3front(m,PX(p0),PX(p1),RY(r1),RY(r0),z,[p0/1656,r0/307,p1/1656,r1/307]);
+  face(mFac,0,1656,0,114,FZ+CAN);
+  r3flat(mTrim,X0,X1,FZ,FZ+CAN,RY(114),-1);
+  r3box(mTrim,mTrim,mTrim,X0-6,X1+6,RY(0)-2,RY(0)+7,FZ-600,FZ+CAN+5);
+  const P=[[0,52],[432,453],[597,604],[667,673],[1000,1013],[1180,1187],[1255,1263],[1350,1365],[1425,1431],[1585,1656]], RD=16, PO=6;
+  for(const [a,b] of P){ face(mFac,a,b,114,307,FZ+PO); r3side(mJamb,PX(a),FZ-RD,FZ+PO,SW,RY(114),-1); r3side(mJamb,PX(b),FZ-RD,FZ+PO,SW,RY(114),1); }
+  for(let i=0;i<P.length-1;i++){ const a=P[i][1], b=P[i+1][0];
+    face(mFac,a,b,114,132,FZ); face(mFac,a,b,292,307,FZ); face(mFac,a,b,132,292,FZ-RD);
+    r3flat(mJamb,PX(a),PX(b),FZ-RD,FZ,RY(132),-1); r3flat(mJamb,PX(a),PX(b),FZ-RD,FZ,RY(292),1); }
+  // soft shade: under the canopy, and where the walls meet the sidewalk
+  const mShade=r3mat(S,{map:grad,tint:[0,0,0],lit:0,blend:1,opacity:0.32});
+  r3front(mShade,X0,X1,RY(114)-80,RY(114),FZ+PO+1);
+  r3quad(r3mat(S,{map:grad,tint:[0,0,0],lit:0,blend:1,opacity:0.35}),[X0,SW+0.3,FZ+PO],[X1,SW+0.3,FZ+PO],[X1,SW+0.3,FZ+PO+46],[X0,SW+0.3,FZ+PO+46],[0,1,0]);
+  // sign letters standing off the band
+  r3front(r3mat(S,{map:tex('signs'),blend:1}),X0,X1,RY(114),RY(0),FZ+CAN+7);
+  // OPEN neon in the window and on the door, with a little light each
+  [[143,148,202,172,FZ-RD+1],[611,157,669,187,FZ-RD+1]].forEach(([p0,r0,p1,r1,z],i)=>{
+    const fl=1.7+i*2.9, cx=(PX(p0)+PX(p1))/2, cy=(RY(r0)+RY(r1))/2;
+    r3front(r3mat(S,{map:tex('open'+i),lit:0,blend:2,flick:fl,opacity:0.8}),PX(p0),PX(p1),RY(r1),RY(r0),z+0.5);
+    r3front(r3mat(S,{map:glowTex,lit:0,blend:2,tint:hex3('#ff8a3c'),opacity:0.3,flick:fl}),cx-55,cx+55,cy-34,cy+34,z+1);
+    S.lights.push({p:[cx,cy,z+40],c:[0.9,0.45,0.25],r:130,flick:fl}); });
+  for(const px of [105,350,555,870,1127,1470]) S.lights.push({p:[PX(px),RY(118)-6,FZ+18],c:[0.5,0.4,0.28],r:150});   // canopy downlights
+  // ground: sidewalk slabs, purple paint, curb, street with the double line
+  r3flat(col('#5d6a3a'),-4000,5500,-4000,FZ-600,SW-1,1);
+  r3flat(r3mat(S,{map:tex('sidewalk')}),-4000,5500,FZ-640,CURB,SW,1,136);
+  const mPaint=col('#9646be'); for(const [a,b] of [[240,1200],[1260,1610]]) r3flat(mPaint,PX(a),PX(b),FZ+14,FZ+42,SW+0.4,1);
+  r3front(col('#806258'),-4000,5500,0,SW,CURB);
+  r3flat(r3mat(S,{map:tex('asphalt')}),-4000,5500,CURB,1000,0,1,272);
+  r3flat(r3mat(S,{map:R3.white,tint:[0,0,0],lit:0,blend:1,opacity:0.16}),-4000,5500,CURB,CURB+22,0.4,1);
+  const lane=r3tex(r3canvas(256,16,(x,w,h)=>{ x.fillStyle='rgba(240,236,228,.92)'; x.fillRect(0,0,w,h); for(let i=0;i<500;i++){ x.clearRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1); } }));
+  const mLane=r3mat(S,{map:lane,blend:1});
+  for(const z of [44,63]) r3quad(mLane,[-4000,0.5,z],[5500,0.5,z],[5500,0.5,z+9],[-4000,0.5,z+9],[0,1,0],[-4000/256,0,5500/256,1]);
+  // props: purple bollards, tire stacks, hydrant, trash can, the 24 HOUR TIRE pole sign
+  const mShadow=r3mat(S,{map:blob,tint:[0,0,0],lit:0,blend:1,opacity:0.45}), shadow=(x,z,w,d)=>r3flat(mShadow,x-w/2,x+w/2,z-d/2,z+d/2,SW+0.6,1);
+  const mPurple=col('#9a3fd0',{spec:40}), BZ=FZ+29;
+  for(const px of [274,447,591,717,844,987,1138,1275,1360,1465,1595]){ const x=PX(px); r3cyl(mPurple,x,BZ,5.5,SW,SW+56,14,false); r3dome(mPurple,x,SW+56,BZ,5.5,14); shadow(x+12,BZ-5,34,14); }
+  const mRubber=col('#1d1d20',{spec:14});
+  for(const [x,z,n] of [[-92,-318,4],[PX(18),FZ+26,3]]){ for(let k=0;k<n;k++) r3torus(mRubber,x,SW+7+k*14,z,15,7,18,8); shadow(x+10,z-4,62,34); }
+  const mRed=col('#c6262e',{spec:30}), mSteel=col('#b9b9be',{spec:40}), HX=PX(1210), HZ=CURB-24;
+  r3cyl(mRed,HX,HZ,12,SW,SW+5,14,true); r3cyl(mRed,HX,HZ,9,SW+5,SW+40,14,false); r3dome(mSteel,HX,SW+40,HZ,9,14);
+  r3box(mRed,mRed,mRed,HX-16,HX+16,SW+24,SW+31,HZ-4,HZ+4); shadow(HX+10,HZ-4,36,20);
+  const mCan=col('#2f4a38',{spec:10}), TX=PX(1625), TZ=FZ+24; r3cyl(mCan,TX,TZ,16,SW,SW+64,16,true); r3cyl(mTrim,TX,TZ,17.5,SW+60,SW+66,16,true); shadow(TX+12,TZ-4,46,24);
+  const PZS=-293, mBox=col('#9e1c25');
+  for(const x of [-177,-87]){ r3cyl(mRed,x,PZS,7,SW,432,12,true); r3flat(mShadow,x,x+110,PZS-8,PZS+4,SW+0.6,1); }
+  r3box(mBox,mBox,mBox,-191,-65,423,517,PZS-12,PZS+12); r3flat(mBox,-191,-65,PZS-12,PZS+12,423,-1);
+  r3box(mBox,mBox,mBox,-186,-78,354,422,PZS-12,PZS+12); r3flat(mBox,-186,-78,PZS-12,PZS+12,354,-1);
+  r3front(r3mat(S,{map:tex('polemain'),alphaTest:0.5}),-212,-52,422,572,PZS+12.5);
+  r3front(r3mat(S,{map:tex('polesub'),alphaTest:0.5}),-186,-78,354,422,PZS+12.5);
+  r3upload(S); return S;
+}
+const SF3D_TEX=['facade','signs','open0','open1','polemain','polesub','neighbor','fence','sidewalk','asphalt','sky','treeline','tree'];
+async function sf3dInit(){   /* loads in the background; the painted layers are used until (or unless) this is ready */
+  try{
+    if(!R3.ok && !r3init()) return;
+    const ims=await Promise.all(SF3D_TEX.map(n=>loadImg('stages/sf3d_'+n+'.webp'))), T={};
+    SF3D_TEX.forEach((n,i)=>T[n]=ims[i]); if(SF3D_TEX.some(n=>!T[n].naturalWidth)) return;
+    STAGES.tires3d=Object.assign({},STAGES.tires,{three:true,painted:false,scene:r3buildSauce(T),w:1300});
+    $('s3dBtn').hidden=false;
+  }catch(e){ console.warn('3D stage unavailable',e); }
+}
 /* off-centre perspective that keeps the plane z=0 exactly 1 game px per world unit, ground at screen row GROUND */
 function r3draw(camX,shx,shy,t){
-  const gl=R3.gl, S=R3.scene; if(!S) return;
+  const gl=R3.gl, S=(game.stage&&game.stage.scene)||R3.scene; if(!S) return;
   const W=VIEW_W, H=VIEW_H, D=R3_D, yh=R3_YH, hc=GROUND-yh, n=8, f=9000, k=n/D;
   const l=-W/2*k, r=W/2*k, tp=yh*k, bt=(yh-H)*k;
   const proj=[2*n/(r-l),0,0,0, 0,2*n/(tp-bt),0,0, (r+l)/(r-l),(tp+bt)/(tp-bt),-(f+n)/(f-n),-1, 0,0,-2*f*n/(f-n),0];
@@ -3189,7 +3304,7 @@ function r3draw(camX,shx,shy,t){
   gl.uniform1f(U.uTime,t); gl.uniform1f(U.uHype,game.hype||0); gl.uniform3f(U.uCam,cx,cy,cz);
   gl.uniform3fv(U.uAmbSky,S.ambSky); gl.uniform3fv(U.uAmbGround,S.ambGround); gl.uniform3fv(U.uFogColor,S.fog); gl.uniform2fv(U.uFogRange,S.fogRange);
   const fl=ph=>ph==null?1:(Math.sin(t*0.37+ph*7)>0.985?0.25:(0.85+0.15*Math.sin(t*0.9+ph)));
-  const L=S.lights.slice().sort((a,b)=>Math.abs(a.p[0]-cx)-Math.abs(b.p[0]-cx)).slice(0,R3_MAXL);
+  const L=S.lights.filter(o=>o.sun).concat(S.lights.filter(o=>!o.sun).sort((a,b)=>Math.abs(a.p[0]-cx)-Math.abs(b.p[0]-cx))).slice(0,R3_MAXL);   /* the sun always counts */
   for(let i=0;i<R3_MAXL;i++){ const o=L[i]; if(o){ const m=fl(o.flick); gl.uniform3fv(R3.uL.p[i],o.p); gl.uniform3f(R3.uL.c[i],o.c[0]*m,o.c[1]*m,o.c[2]*m); gl.uniform1f(R3.uL.r[i],o.r); } else { gl.uniform3f(R3.uL.c[i],0,0,0); gl.uniform1f(R3.uL.r[i],1); } }
   gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
   const A=R3.a;
@@ -3213,8 +3328,8 @@ function r3size(cw,ch,left,top){
   const c=$('cv3d'); if(!c) return; c.style.width=cw+'px'; c.style.height=ch+'px'; c.style.left=left+'px'; c.style.top=top+'px';
   const pr=Math.min(1.5,window.devicePixelRatio||1); c.width=Math.round(cw*pr); c.height=Math.round(ch*pr);
 }
-function use3D(){ return settings.stage3d!==false && R3.ok && R3.scene; }
-function stageFor(id){ return (id==='block'&&use3D())?STAGES.block3d:(STAGES[id]||STAGES.block); }
+function use3D(){ return settings.stage3d!==false && R3.ok; }
+function stageFor(id){ return (use3D()&&STAGES[id+'3d'])||STAGES[id]||STAGES.block; }
 
 /* ================= BOOT ================= */
 async function boot(){
@@ -3232,7 +3347,7 @@ async function boot(){
   if(IM.angel_arcade&&IM.angel_arcade.naturalWidth) STAGES.arcade=paintedPlate('arcade',"ANGEL'S ARCADE",IM.angel_arcade,false);
   if(['sky','trees','ground','building','props'].every(n=>IM['sf_'+n]&&IM['sf_'+n].naturalWidth)) STAGES.tires=layeredSauce();   /* Drip God's block: fighters stand in the street in front of the shops */
   if(IM.malo_roof&&IM.malo_roof.naturalWidth) STAGES.quarter=paintedPlate('quarter','THE ROOFTOP · AFTER HOURS',IM.malo_roof);   /* painted art; the drawn version stays if it can't load */
-  if(!R3.ok) $('s3dBtn').hidden=true;
+  sf3dInit();   /* live 3D Sauce Factory: builds in the background, the painted version stands in until then */
   FIG_ASPECT=Math.max(...ROSTER.map(c=>IM[c.id].naturalWidth/IM[c.id].naturalHeight)); loadNames(); buildSelect(); bindUI(); bindRename(); bindOnline();
   $('loading').remove();
   goTitle();

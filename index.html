@@ -816,7 +816,7 @@ const ROSTER = [
    h:290, bw:62, hip:0.46, hp:1050, power:1.05, walk:3.2, jump:14.2, jx:4.2,
    animCfg:{anim:ANIMS.drip, dir:true, drawH:327.5, ax:0.3458, footPad:0.05584, hip:0.4818, fist:{jab:[100.2,0.785],cross:[106.3,0.769],jab3:[135.8,0.76],cpunch:[124,0.63]},
      hit:{kick:[128,166,0.55,0.45], sweep:[157.5,225,0,0.16], akick:[72,104,0.35,0.42], apunch:[75,90,0.3,0.6], cpunch:[87.5,85,0.45,0.27]}},
-   color:'#ff7a1a', stats:[4,3,4], spName:'Fast Break', suName:'Posterized', stage:'tires',
+   color:'#ff7a1a', stats:[4,3,4], spName:'Drip Splash', suName:'Posterized', stage:'tires',
    quotes:["Ice on my wrist, fire in my hands.","TSF. La Familia."]},
 ];
 
@@ -941,8 +941,10 @@ const sfx={
     else if(k==='fleur'){ tone('sawtooth',300,900,0.16,0.22,null,null,2200); noise(0.14,0.25,'bandpass',800,3000,2); }
     else if(k==='star'){ tone('square',880,1760,0.12,0.16); tone('sine',1320,2640,0.18,0.18,null,AU.ctx.currentTime+0.04); }
     else if(k==='halo'){ tone('sine',660,1320,0.25,0.28); tone('sine',990,1980,0.25,0.16); }
+    else if(k==='diamond'){ tone('triangle',2400,2400,0.07,0.13); tone('sine',3600,3600,0.12,0.08,null,AU.ctx.currentTime+0.03); noise(0.1,0.16,'highpass',3000,6000,1); }
     else if(k==='ball'){ noise(0.12,0.4,'bandpass',600,1800,1.4); tone('sine',180,90,0.12,0.5); tone('triangle',520,260,0.1,0.18,null,AU.ctx.currentTime+0.02); }
     else { noise(0.35,0.5,'lowpass',2000,200,0.8); tone('sine',70,35,0.4,0.9); } },
+  splat(){ if(!sfxOK())return; noise(0.14,0.3,'lowpass',1400,250,1.2); tone('sine',260,120,0.1,0.22); },
   superFlash(){ if(!sfxOK())return; tone('sawtooth',110,55,0.6,0.3,null,null,900); noise(0.5,0.35,'bandpass',300,4000,1.2); [523,659,784].forEach((f,i)=>tone('triangle',f,f,0.5,0.12,null,AU.ctx.currentTime+i*0.03)); },
   ko(){ if(!sfxOK())return; tone('sine',95,28,1.0,1); noise(0.9,0.6,'lowpass',1600,80,0.7); },
   ui(){ if(!AU.ctx||!settings.sound)return; tone('square',740,740,0.04,0.07); },
@@ -1336,7 +1338,13 @@ function buildMoves(ch){
     pose(f,t){ const e=t<13?easeOut(t/13):t<24?1:1-(t-24)/16; return {lean:34*e,dx:14*e,rot:0.05*e,leg:1-0.1*e,sx:1}; }});
   if(ch.id==='boss') mv.special=projSpecial('coin',6.8,108,24);
   if(ch.id==='nola') mv.special=projSpecial('fleur',10.5,82,22);
-  if(ch.id==='drip') mv.special=projSpecial('ball',9.2,90,22);   /* Fast Break: a hard basketball pass */
+  if(ch.id==='drip'){   /* Drip Splash: wrist flick (his jab frames), a spinning diamond leaves his fist (settings: DRIP_SPLASH) */
+    const D=DRIP_SPLASH, sp=projSpecial('diamond',D.speed,D.dmg,D.radius), handX=(ch.fist&&ch.fist.jab)?ch.fist.jab[0]:B+30;
+    sp.su=D.release; sp.cd=D.cooldown;
+    sp.update=function(f,t){ if(t===D.release){ const p=spawnProj(f,{kind:'diamond',vx:D.speed*f.face,dmg:D.dmg,chip:D.chip,r:D.radius,y:H*D.handY});
+      p.x=f.x+f.face*handX; p.push=D.push; p.hs=D.hitstop; p.bs=D.blockstun; p.heavy=false; sfx.shoot('diamond'); sfx.throwFx(); } };
+    if(ch.anim&&ch.anim.jab){ sp.anim='jab'; sp.ac=6; sp.re=sp.total-D.release-6; sp.pose=()=>({lean:0,dx:0,rot:0,leg:1,sx:1}); }
+    mv.special=sp; }
   if(ch.id==='angel'){ mv.special=projSpecial('halo',8.4,92,22);
     if(ch.anim&&ch.anim.throw){ const sp=mv.special; sp.anim='throw'; sp.ac=6; sp.re=21; sp.pose=()=>({lean:0,dx:0,rot:0,leg:1,sx:1}); } }   /* halo throw from her clip */
   if(ch.id==='draco'){ mv.special=projSpecial('star',9.4,88,22);
@@ -1445,6 +1453,13 @@ function blockSpark(x,y){
   for(let i=0;i<6;i++){ const a=rnd(6.283), s=3+rnd(4); P({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:8+rnd(6),size:2,color:'#bfeaff',type:'spark',drag:0.85}); }
 }
 function dust(x,y,dir){ for(let i=0;i<3;i++) P({x:x+rnd(-6,6),y:y+rnd(4),vx:dir*rnd(0.5,2),vy:rnd(0.3,1.2),life:18+rnd(10),size:6+rnd(6),color:'#d8cfe6',type:'dust',drag:0.94}); }
+function sauceSplash(x,y,dir,small){   /* Drip Splash contact: a compact burst of glossy sauce and a few diamond glints */
+  const n=small?5:9;
+  for(let i=0;i<n;i++){ const a=(dir>0?Math.PI:0)+rnd(-1.15,1.15), s=rnd(1.8,4.6);
+    P({x,y,vx:Math.cos(a)*s,vy:Math.abs(Math.sin(a))*s*0.8+rnd(0.8,2.2),g:0.32,life:16+rnd(10),size:2+rnd(2),color:i%3?'#d0122c':'#ff4d5e',type:'dot',drag:0.96}); }
+  P({x,y,type:'ring',r0:4,r1:small?16:26,life:9,size:3,color:'#e8243c'});
+  for(let i=0;i<(small?2:3);i++) P({x:x+rnd(-12,12),y:y+rnd(-10,12),vx:rnd(-0.8,0.8),vy:rnd(-0.3,1),life:12+rnd(6),size:6+rnd(5),color:i?'#ffffff':'#bfeaff',type:'star',rot:rnd(1)});
+}
 function sparkle(x,y,col){ P({x,y,vx:rnd(-1,1),vy:rnd(-1,1),life:14+rnd(8),size:7+rnd(6),color:col,type:'star',rot:rnd(1)}); }
 function starBurst(x,y){ for(let i=0;i<22;i++){ const a=rnd(0,6.283); P({x,y,vx:Math.cos(a)*rnd(3,8),vy:Math.sin(a)*rnd(3,9),g:0.25,life:30+rnd(16),size:rnd(4,8),type:'spark',color:i%3?'#ff4b4b':'#5b8cff',drag:0.96}); } }
 function coinBurst(x,y){ for(let i=0;i<26;i++){ const a=rnd(-0.3,3.44); P({x,y,vx:Math.cos(a)*rnd(3,9),vy:Math.sin(a)*rnd(4,11),g:0.4,life:40+rnd(20),size:5+rnd(3),type:'coin',vr:rnd(0.2,0.5)}); } }
@@ -1466,16 +1481,18 @@ function updateProjs(){
   for(const p of projs){
     if(!p.alive) continue;
     p.t++; p.x+=p.vx; p.yy=p.kind==='halo'?p.y+dsin(p.t*0.16)*9:p.y;
-    if(p.t%2===0){ const col={coin:'#ffd25a',fleur:'#c9a0ff',halo:'#ffc0e0',wave:'#bfe6ff',ball:'#ff9a3c'}[p.kind]; if(p.kind==='wave') dust(p.x,4,-Math.sign(p.vx)); else P({x:p.x-Math.sign(p.vx)*p.r*0.6,y:p.yy+rnd(-p.r*0.5,p.r*0.5),vx:-p.vx*0.15,vy:rnd(-0.5,0.5),life:14,size:3+rnd(3),color:col,type:'dot'}); }
+    if(p.kind==='diamond'){ if(p.t%3===0) P({x:p.x-Math.sign(p.vx)*p.r*1.8,y:p.yy+rnd(-3,3),vx:-p.vx*0.06+rnd(-0.3,0.3),vy:rnd(0.3,1.3),g:0.22,life:14+rnd(8),size:1.4+rnd(1.4),color:rnd()<0.5?'#c8102e':'#e8243c',type:'dot',drag:0.97}); }   /* a few sauce droplets falling off the trail */
+    else if(p.t%2===0){ const col={coin:'#ffd25a',fleur:'#c9a0ff',halo:'#ffc0e0',wave:'#bfe6ff',ball:'#ff9a3c'}[p.kind]; if(p.kind==='wave') dust(p.x,4,-Math.sign(p.vx)); else P({x:p.x-Math.sign(p.vx)*p.r*0.6,y:p.yy+rnd(-p.r*0.5,p.r*0.5),vx:-p.vx*0.15,vy:rnd(-0.5,0.5),life:14,size:3+rnd(3),color:col,type:'dot'}); }
     if((!NET.running&&(p.x<cam.x-120||p.x>cam.x+VIEW_W+120))||p.x<-60||p.x>STAGE_W+60||p.t>240){ p.alive=false; continue; }
-    for(const q of projs){ if(q===p||!q.alive||q.owner===p.owner||q.kind==='wave'||p.kind==='wave') continue; if(Math.abs(q.x-p.x)<p.r+q.r&&Math.abs(q.yy-p.yy)<p.r+q.r){ p.alive=q.alive=false; hitSpark((p.x+q.x)/2,(p.yy+q.yy)/2,true,'#ffffff'); sfx.block(); } }
+    for(const q of projs){ if(q===p||!q.alive||q.owner===p.owner||q.kind==='wave'||p.kind==='wave') continue; if(Math.abs(q.x-p.x)<p.r+q.r&&Math.abs(q.yy-p.yy)<p.r+q.r){ p.alive=q.alive=false; hitSpark((p.x+q.x)/2,(p.yy+q.yy)/2,true,'#ffffff'); sfx.block(); for(const z of [p,q]) if(z.kind==='diamond') sauceSplash(z.x,z.yy,Math.sign(z.vx),true); } }
     if(!p.alive) continue;
     const def=p.owner.opp; const hr=hurtRect(def); if(!hr) continue;
     if(p.groundOnly && def.y>30) continue;
     if(p.x+p.r>hr.x0&&p.x-p.r<hr.x1&&p.yy+p.r>hr.y0&&p.yy-p.r<hr.y1){
       p.alive=false;
-      const h={dmg:p.dmg,chip:p.chip,level:'mid',hs:20,bs:14,push:7,heavy:true,kd:p.kind==='wave',launch:p.kind==='wave'?{vx:5,vy:12}:null,sup:p.sup,big:p.kind==='wave'};
+      const h={dmg:p.dmg,chip:p.chip,level:'mid',hs:p.hs||20,bs:p.bs||14,push:p.push||7,heavy:p.heavy!==false,kd:p.kind==='wave',launch:p.kind==='wave'?{vx:5,vy:12}:null,sup:p.sup,big:p.kind==='wave'};
       applyHit(p.owner,def,h,true,{x:p.x,y:p.yy});
+      if(p.kind==='diamond'){ sauceSplash(p.x,p.yy,Math.sign(p.vx),def.state==='blockstun'); sfx.splat(); }
     }
   }
   for(const p of projs) if(!p.alive && p.owner.proj===p) p.owner.proj=null;
@@ -1511,6 +1528,25 @@ function drawProj(c,p){
     c.shadowColor='#ff4b4b'; c.shadowBlur=24; c.fillStyle='#d62b3a'; starPath5(c,p.r*1.35,p.r*0.6); c.fill(); c.shadowBlur=0;
     c.lineWidth=4; c.strokeStyle='#2457d6'; c.stroke(); c.lineWidth=2; c.strokeStyle='#fff'; starPath5(c,p.r*0.85,p.r*0.38); c.stroke();
     drawStar(c,0,0,8+4*Math.abs(Math.sin(p.t*0.4)),'#fff',0);
+  } else if(p.kind==='diamond'){ const d=Math.sign(p.vx)||1, r=p.r, L=r*3.4;
+    c.save(); c.scale(d,1);   /* short glossy sauce trail behind the gem */
+    const tg=c.createLinearGradient(-L,0,0,0); tg.addColorStop(0,'rgba(150,6,22,0)'); tg.addColorStop(0.55,'rgba(196,14,38,.78)'); tg.addColorStop(1,'rgba(232,36,60,.96)');
+    c.fillStyle=tg; c.beginPath(); c.moveTo(-L,0); c.quadraticCurveTo(-L*0.5,-r*0.55,-r*0.2,-r*0.5); c.lineTo(-r*0.2,r*0.5); c.quadraticCurveTo(-L*0.5,r*0.55,-L,0); c.fill();
+    c.strokeStyle='rgba(255,180,190,.6)'; c.lineWidth=1.5; c.beginPath(); c.moveTo(-L*0.72,-r*0.1); c.quadraticCurveTo(-L*0.4,-r*0.36,-r*0.3,-r*0.3); c.stroke();
+    c.restore();
+    const s=p.t*0.35, sw=Math.max(0.3,Math.abs(Math.cos(s))), w=r*1.05*sw, tw=r*0.55*sw, top=-r*0.62, gird=-r*0.16, bot=r*0.95;   /* faceted gem spinning on its vertical axis */
+    c.save(); c.shadowColor='rgba(190,235,255,.9)'; c.shadowBlur=12;
+    let gr=c.createLinearGradient(-w,gird,w,bot); gr.addColorStop(0,'#eef9ff'); gr.addColorStop(0.5,'#a5d8f2'); gr.addColorStop(1,'#5e9cc2');
+    c.fillStyle=gr; c.beginPath(); c.moveTo(-w,gird); c.lineTo(w,gird); c.lineTo(0,bot); c.closePath(); c.fill();
+    gr=c.createLinearGradient(0,top,0,gird); gr.addColorStop(0,'#ffffff'); gr.addColorStop(1,'#cdeeff');
+    c.fillStyle=gr; c.beginPath(); c.moveTo(-tw,top); c.lineTo(tw,top); c.lineTo(w,gird); c.lineTo(-w,gird); c.closePath(); c.fill(); c.shadowBlur=0;
+    c.strokeStyle='rgba(55,105,145,.55)'; c.lineWidth=1; c.beginPath();
+    for(const k of [-1.2,-0.4,0.4,1.2]){ const fx=Math.sin(s+k)*w*0.9; c.moveTo(fx*0.55,top); c.lineTo(fx,gird); c.lineTo(0,bot); }
+    c.moveTo(-w,gird); c.lineTo(w,gird); c.stroke();
+    c.strokeStyle='rgba(255,255,255,.95)'; c.lineWidth=1.4; c.beginPath(); c.moveTo(-tw,top); c.lineTo(tw,top); c.stroke();
+    c.fillStyle='rgba(255,255,255,.85)'; c.beginPath(); c.moveTo(-w*0.6,gird-1); c.lineTo(-w*0.18,top+2); c.lineTo(-w*0.02,gird-1); c.closePath(); c.fill();   /* icy highlight */
+    drawStar(c,w*0.42,top+1,5+5*Math.abs(Math.sin(p.t*0.5)),'#fff',0);
+    c.restore();
   } else if(p.kind==='ball'){ c.rotate(p.t*0.3*Math.sign(p.vx||1)); const r=p.r;
     c.shadowColor='#ff7a1a'; c.shadowBlur=22; const g=c.createRadialGradient(-r*0.35,-r*0.35,r*0.1,0,0,r); g.addColorStop(0,'#ffb35c'); g.addColorStop(0.7,'#e8641a'); g.addColorStop(1,'#a8400c');
     c.fillStyle=g; c.beginPath(); c.arc(0,0,r,0,6.283); c.fill(); c.shadowBlur=0;
@@ -1543,6 +1579,11 @@ class Human{
   }
 }
 const SP_CD=90, SP_MAX=4;   /* frames between specials (1.5 s); specials per fighter per round */
+/* Drip Splash: Sauce Walka's (Drip God's) special. A fist-sized diamond dripping sauce. Tune it here.
+   dmg: damage on hit · chip: damage through a block · speed: px per frame · radius: hit size (px)
+   push: knockback · hitstop / blockstun: frames of hit freeze / block stun · cooldown: frames before his next special
+   handY: launch height as a share of his height (his jab fist) · release: frame of the move the diamond leaves his hand */
+const DRIP_SPLASH={dmg:88, chip:13, speed:9.5, radius:14, push:6, hitstop:18, blockstun:12, cooldown:SP_CD, handY:0.785, release:13};
 const AI_LV=[
   {react:24,block:.18,aggro:.42,combo:.12,aa:.12,proj:.16,jump:.07},
   {react:13,block:.5,aggro:.58,combo:.5,aa:.4,proj:.24,jump:.09},
@@ -1634,7 +1675,7 @@ class Fighter{
   qcf(){ const h=this.hist; let st=0; for(let i=h.length-1,n=0;i>=0&&n<18;i--,n++){ const d=h[i]; if(st===0){ if(d===6) st=1; } else if(st===1){ if(d===3) st=2; else if(d===2) return true; } else if(st===2){ if(d===2||d===1) return true; } } return false; }
   launchJump(){ this.flipJump=this.jumpSet==='flip'||this.jumpSet==='fflip'; this.vy=this.ch.jump; this.vx=this.jumpDir*this.face*this.ch.jx; this.y=1; this.airAtk=false; this.setState('jump'); sfx.jump(); dust(this.x,2,0); }
   spReady(){ return this.spLeft>0&&!(this.spCD>0)&&!(this.moves.special.proj&&this.proj); }
-  trySpecial(){ if(!this.spReady()) return false; this.startMove(this.moves.special); this.spCD=SP_CD; this.spLeft--; return true; }
+  trySpecial(){ if(!this.spReady()) return false; this.startMove(this.moves.special); this.spCD=this.moves.special.cd||SP_CD; this.spLeft--; return true; }
   doSuper(){ this.meter=0; this.startMove(this.moves.super); game.flash={f:this,t:44,max:44}; game.hype=1; sfx.superFlash(); for(let i=0;i<14;i++) sparkle(this.x+rnd(-50,50),this.y+rnd(20,this.ch.h),this.ch.color); }
   update(inp,opp){
     this.t++; this.age=(this.age||0)+1; this.landAge=(this.landAge??99)+1; if(this.riseT>0) this.riseT--;
@@ -2169,7 +2210,7 @@ function drawHUD(c){
     c.drawImage(f.ch.face,pcx-pr,pcy-pr*1.02,pr*2,pr*2); if(f.alt){ c.fillStyle='rgba(60,40,140,.45)'; c.fillRect(pcx-pr,pcy-pr,pr*2,pr*2); } c.restore();
     c.save(); c.shadowColor=col; c.shadowBlur=8; c.lineWidth=Math.max(3,4*u); c.strokeStyle=col; c.beginPath(); c.arc(pcx,pcy,pr,0,6.283); c.stroke(); c.restore();
     /* special recharge badge on the portrait: pink and lit when ready, fills clockwise while recharging */
-    { const sr=Math.max(8,pr*0.4), sx=pcx, sy=pcy+pr*0.92, ready=f.spReady(), out=!(f.spLeft>0), k=out?0:f.spCD>0?1-f.spCD/SP_CD:1;
+    { const sr=Math.max(8,pr*0.4), sx=pcx, sy=pcy+pr*0.92, ready=f.spReady(), out=!(f.spLeft>0), k=out?0:f.spCD>0?1-f.spCD/(f.moves.special.cd||SP_CD):1;
       c.save(); c.beginPath(); c.arc(sx,sy,sr+2,0,6.283); c.fillStyle='#07060a'; c.fill();
       c.beginPath(); c.arc(sx,sy,sr,0,6.283);
       if(ready){ c.fillStyle='#ff6fb1'; c.shadowColor='#ff6fb1'; c.shadowBlur=8; c.fill(); }
@@ -2239,7 +2280,7 @@ function frame(now){
   render(); if(current==='select') drawSelIdle(now);
   const sb=document.querySelector('.pb[data-b="x"]'); if(sb&&game.F&&game.mode!=='demo'){ const me=game.F[game.mode==='online'?NET.me:0]; sb.classList.toggle('ready',me.meter>=100);
     const spb=document.querySelector('.pb[data-b="s"]'); if(spb){ const ready=me.spReady(), out=!(me.spLeft>0); spb.classList.toggle('cool',!ready&&!out); spb.classList.toggle('out',out);
-      const sm=spb.querySelector('small'), lt=out?'none left':me.spLeft+' left'; if(sm&&sm.textContent!==lt) sm.textContent=lt; if(!ready) spb.style.setProperty('--k',(me.spCD>0?1-me.spCD/SP_CD:1).toFixed(3)); } }
+      const sm=spb.querySelector('small'), lt=out?'none left':me.spLeft+' left'; if(sm&&sm.textContent!==lt) sm.textContent=lt; if(!ready) spb.style.setProperty('--k',(me.spCD>0?1-me.spCD/(me.moves.special.cd||SP_CD):1).toFixed(3)); } }
 }
 
 /* ================= SCREENS & FLOW ================= */
@@ -2620,7 +2661,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='43d426ce4b', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='ef332ce150', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

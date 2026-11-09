@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get your own fighter · Drip Fighters</title>
+<meta name="description" content="Send a photo and get turned into a playable Drip Fighters character.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Barlow+Condensed:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --asphalt:#0b0b10; --asphalt-2:#16141d; --line:#2c2838; --ink:#f5f0e6; --muted:#a59fb3;
+  --gold:#f2c14e; --gold-2:#c8922a; --pink:#ff5aa5;
+  --display:"Bungee", Impact, "Arial Black", sans-serif;
+  --body:"Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--asphalt)}
+body{margin:0;color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.35;background:radial-gradient(120% 60% at 50% 0%,#241b33 0%,var(--asphalt) 60%) no-repeat}
+a{color:var(--gold)}
+.wrap{max-width:860px;margin:0 auto;padding:18px 18px 64px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-family:var(--display);font-size:20px;letter-spacing:.02em;color:var(--gold);text-decoration:none;white-space:nowrap}
+.back{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:15px;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:6px 12px;border-radius:999px;white-space:nowrap}
+.back:hover{color:var(--ink);border-color:var(--gold)}
+
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;align-items:end;margin:22px 0 8px}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(38px,8vw,64px);line-height:.95;margin:0 0 10px;text-transform:uppercase}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{margin:0;color:var(--muted);font-size:21px;max-width:30ch}
+.figs{position:relative;height:clamp(190px,34vw,290px)}
+.figs img{position:absolute;bottom:0;height:100%;filter:drop-shadow(0 10px 14px rgba(0,0,0,.6))}
+.figs img:nth-child(1){left:0;height:88%;opacity:.85}
+.figs img:nth-child(2){left:26%;z-index:2}
+.figs img:nth-child(3){left:54%;height:90%;opacity:.85}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:26px 0 30px;padding:0;list-style:none;counter-reset:s}
+.steps li{background:var(--asphalt-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;counter-increment:s;font-weight:600}
+.steps li::before{content:counter(s);display:inline-grid;place-items:center;width:26px;height:26px;margin-right:8px;border-radius:50%;background:var(--gold);color:#1a1206;font-family:var(--display);font-size:14px}
+
+h2{font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.02em;text-transform:uppercase;margin:34px 0 12px}
+h2 small{font-family:var(--body);font-size:16px;color:var(--muted);text-transform:none;letter-spacing:0;margin-left:6px}
+
+.tiers{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tier{position:relative;display:block;cursor:pointer;background:var(--asphalt-2);border:2px solid var(--line);border-radius:12px;padding:16px 16px 14px;transition:border-color .15s,transform .1s}
+.tier:hover{border-color:#4a4258}
+.tier input{position:absolute;opacity:0;pointer-events:none}
+.tier:has(input:checked){border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,193,78,.18)}
+.tier:has(input:focus-visible){outline:3px solid var(--gold);outline-offset:3px}
+.tier .nm{font-family:var(--display);font-size:20px;text-transform:uppercase}
+.tier .price{font-family:var(--display);font-size:34px;color:var(--gold);margin:4px 0 2px}
+.tier .eta{color:var(--muted);font-weight:700;letter-spacing:.03em;text-transform:uppercase;font-size:15px}
+.tier ul{margin:10px 0 0;padding-left:18px;font-size:17px}
+.tier li{margin:2px 0}
+.tier .note{margin-top:8px;font-size:15px;color:var(--muted)}
+.tier .badge{position:absolute;top:-11px;right:12px;background:var(--pink);color:#fff;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+
+.panel{background:var(--asphalt-2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.check{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.check input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--gold);flex:none}
+.check b{display:block;font-size:20px}
+.check span{color:var(--muted);font-size:17px}
+.check.off{opacity:.45;cursor:not-allowed}
+.radios{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.radios label{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;font-weight:600}
+.radios label:has(input:checked){border-color:var(--gold);background:rgba(242,193,78,.1)}
+.radios input{accent-color:var(--gold)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-weight:700;letter-spacing:.03em;font-size:16px;text-transform:uppercase;color:var(--muted)}
+.field label i{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500}
+input[type=text],input[type=email],textarea{font:inherit;font-size:18px;color:var(--ink);background:#0f0e15;border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+textarea{min-height:92px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--gold)}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.drop{position:relative;aspect-ratio:3/4;border:2px dashed #4a4258;border-radius:10px;display:grid;place-items:center;text-align:center;color:var(--muted);font-weight:700;font-size:15px;cursor:pointer;overflow:hidden;background:#0f0e15;padding:8px}
+.drop:hover{border-color:var(--gold);color:var(--ink)}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.drop .x{position:absolute;top:6px;right:6px;z-index:2;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.7);color:#fff;font-size:18px;cursor:pointer;display:none}
+.drop.has .x{display:block}
+.drop.req::after{content:"Required";position:absolute;bottom:6px;left:0;right:0;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.drop.has.req::after{display:none}
+.tips{margin:8px 0 0;color:var(--muted);font-size:16px}
+
+.rules{margin:0;padding-left:20px;color:var(--muted);font-size:17px}
+.rules li{margin:4px 0}
+.rules b{color:var(--ink)}
+
+.total{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:22px;padding:16px;border:2px solid var(--gold);border-radius:12px;background:rgba(242,193,78,.06)}
+.total .sum{font-family:var(--display);font-size:34px;color:var(--gold)}
+.total .what{color:var(--muted);font-size:17px}
+.go{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.02em;color:#1a1206;background:linear-gradient(180deg,#ffe9a8,var(--gold) 45%,var(--gold-2));border:2px solid #ffe9a8;border-radius:10px;padding:13px 22px;cursor:pointer;box-shadow:0 5px 0 #6b4a12;white-space:nowrap}
+.go:active{transform:translateY(3px);box-shadow:0 2px 0 #6b4a12}
+.go[disabled]{filter:grayscale(.6) brightness(.7);cursor:wait}
+.err{color:#ff7a7a;font-weight:700;margin:10px 0 0;min-height:1em}
+.done{text-align:center;padding:30px 18px}
+.done h2{margin-top:0;font-size:30px;color:var(--gold)}
+.done .oid{font-family:var(--display);font-size:22px;letter-spacing:.06em;border:1px dashed var(--gold);display:inline-block;padding:8px 14px;border-radius:8px;margin:8px 0 14px}
+.faq details{border-bottom:1px solid var(--line);padding:10px 0}
+.faq summary{cursor:pointer;font-weight:700;font-size:19px}
+.faq p{margin:8px 0 0;color:var(--muted)}
+.hidden{display:none!important}
+
+@media (max-width:640px){
+  body{font-size:18px}
+  .hero{grid-template-columns:1fr}
+  .figs{height:200px;order:-1}
+  .brand{font-size:16px}
+  .back{font-size:13px;padding:5px 10px}
+  .steps{grid-template-columns:1fr}
+  .tiers,.grid{grid-template-columns:1fr}
+  .total{flex-direction:column;align-items:stretch;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="brand" href="/">DRIP FIGHTERS</a>
+    <a class="back" href="/">← Back to the game</a>
+  </div>
+
+  <header class="hero">
+    <div>
+      <h1>Get your <em>own</em> fighter</h1>
+      <p>Send a photo. We turn you into a playable Drip Fighter, with your face, your fit and your moves.</p>
+    </div>
+    <div class="figs" aria-hidden="true">
+      <img src="sprites/fresh_pose.webp" alt=""><img src="sprites/drip_pose.webp" alt=""><img src="sprites/angel_pose.webp" alt="">
+    </div>
+  </header>
+  <ol class="steps">
+    <li>Pick a package and send your photos</li>
+    <li>Pay, and we start building your fighter</li>
+    <li>Get an unlock code and play as you</li>
+  </ol>
+
+  <form id="order" name="custom-fighter" method="POST" action="/custom.html" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="form-name" value="custom-fighter">
+    <input type="hidden" name="order_id" id="orderId">
+    <input type="hidden" name="total" id="totalField">
+    <p class="hidden"><label>Leave this empty <input name="bot-field"></label></p>
+
+    <h2>1 · Pick your package</h2>
+    <div class="tiers">
+      <label class="tier">
+        <input type="radio" name="package" value="Quick fighter" data-price="100" data-key="quick" checked>
+        <div class="nm">Quick fighter</div>
+        <div class="price">$100</div>
+        <div class="eta">Ready in 3–5 days</div>
+        <ul><li>Fight stance and walk</li><li>Punch combo and kick</li><li>Block, getting hit, knockdown</li></ul>
+        <div class="note">Other moves (jumps, crouch, sweep) use stand-in poses. Upgrade to full any time for the $100 difference.</div>
+      </label>
+      <label class="tier">
+        <span class="badge">Full moveset</span>
+        <input type="radio" name="package" value="Full fighter" data-price="200" data-key="full">
+        <div class="nm">Full fighter</div>
+        <div class="price">$200</div>
+        <div class="eta">Ready in about 7 days</div>
+        <ul><li>Everything in Quick</li><li>Sweep, jump and jump attacks</li><li>Crouch and crouch punch</li><li>Your own special move and super</li></ul>
+      </label>
+    </div>
+
+    <h2>2 · Who's the fighter?</h2>
+    <div class="panel">
+      <div class="field"><label>This fighter is based on</label>
+        <div class="radios" role="radiogroup">
+          <label><input type="radio" name="based_on" value="Me" checked> Me</label>
+          <label><input type="radio" name="based_on" value="Someone else (18+, said yes)"> Someone else, 18+, who said yes</label>
+          <label><input type="radio" name="based_on" value="My child (I'm the parent/guardian)"> My child (I'm their parent or guardian)</label>
+        </div>
+      </div>
+    </div>
+
+    <h2>3 · Make it public? <small>optional</small></h2>
+    <div class="panel">
+      <label class="check" id="publicWrap">
+        <input type="checkbox" name="make_public" value="Yes" id="publicBox">
+        <div><b>Add my fighter to the game for everyone · $10 off</b>
+          <span>Anyone can play as your fighter on the Community tab, and the select card says "Created by" you. We decide which fighters go public and remove one any time you ask. <span id="kidNote" class="hidden">Not available for fighters based on kids.</span></span></div>
+      </label>
+      <div class="field" id="creditField" style="margin-top:12px" hidden>
+        <label for="credit">Credit me as <i>(name or @handle shown on the card)</i></label>
+        <input type="text" id="credit" name="credit_as" maxlength="30" placeholder="@yourhandle">
+      </div>
+    </div>
+
+    <h2>4 · Photos</h2>
+    <div class="photos">
+      <label class="drop req"><input type="file" name="photo1" accept="image/*" data-n="1"><span>Front, full body</span><button type="button" class="x" aria-label="Remove photo">×</button></label>
+      <label class="drop"><input type="file" name="photo2" accept="image/*" data-n="2"><span>Face close-up<br><i>(optional)</i></span><button type="button" class="x" aria-label="Remove photo">×</button></label>
+      <label class="drop"><input type="file" name="photo3" accept="image/*" data-n="3"><span>Outfit or side view<br><i>(optional)</i></span><button type="button" class="x" aria-label="Remove photo">×</button></label>
+    </div>
+    <p class="tips">Best results: good light, facing the camera, the outfit you want to fight in. We resize photos before sending.</p>
+
+    <h2>5 · Details</h2>
+    <div class="grid">
+      <div class="field"><label for="name">Your name</label><input type="text" id="name" name="name" autocomplete="name" required></div>
+      <div class="field"><label for="email">Email <i>(your code goes here)</i></label><input type="email" id="email" name="email" autocomplete="email" required></div>
+      <div class="field"><label for="fname">Fighter name</label><input type="text" id="fname" name="fighter_name" maxlength="16" placeholder="Shown on the select screen" required></div>
+      <div class="field"><label for="phone">Phone <i>(optional)</i></label><input type="text" id="phone" name="phone" autocomplete="tel"></div>
+      <div class="field full"><label for="style">Style and vibe <i>(outfit, colors, attitude, walk-out quote)</i></label><textarea id="style" name="style_notes" maxlength="800"></textarea></div>
+      <div class="field full" id="specialField" hidden><label for="special">Special move idea <i>(full fighter: a projectile, a dash, a signature taunt…)</i></label><textarea id="special" name="special_move" maxlength="600"></textarea></div>
+    </div>
+
+    <h2>6 · The rules</h2>
+    <div class="panel">
+      <ul class="rules">
+        <li><b>Real people only with a yes.</b> The photo has to be you, someone 18+ who agreed, or your own child. No celebrities, and no characters from movies, games, shows or brands.</li>
+        <li><b>The clock starts when payment clears.</b> Quick: 3–5 days. Full: about 7 days.</li>
+        <li><b>One round of changes</b> is included once you see your fighter.</li>
+        <li><b>Full refund</b> if we can't take your order.</li>
+        <li>Your fighter comes as an <b>unlock code</b> by email. Enter it in the game's Options to play.</li>
+      </ul>
+      <label class="check" style="margin-top:14px">
+        <input type="checkbox" name="agree" value="Yes" id="agree" required>
+        <div><b>I agree, and I have the right to use these photos</b></div>
+      </label>
+    </div>
+
+    <div class="total">
+      <div><div class="sum" id="sum">$100</div><div class="what" id="what">Quick fighter</div></div>
+      <button class="go" type="submit" id="go">Place order</button>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+  </form>
+
+  <section class="panel done hidden" id="done" aria-live="polite">
+    <h2>Order received</h2>
+    <p>Your order number</p>
+    <div class="oid" id="doneId">DF-</div>
+    <p id="doneMsg">We'll email you a secure payment link within 24 hours. Your fighter build starts as soon as it's paid.</p>
+    <p><a href="/">← Back to the game</a></p>
+  </section>
+
+  <h2>Questions</h2>
+  <div class="faq">
+    <details><summary>Can I play my fighter online?</summary><p>Yes. Pick your fighter in an online match and your opponent sees it too.</p></details>
+    <details><summary>What if I don't like how it came out?</summary><p>You get one round of changes. Tell us what's off and we'll fix it.</p></details>
+    <details><summary>Can I upgrade a Quick fighter later?</summary><p>Yes, for the $100 difference. We add the rest of the moves to the same fighter.</p></details>
+    <details><summary>Does a public fighter stay forever?</summary><p>Only as long as you want. Ask and we take it off the public roster. You keep playing it with your code.</p></details>
+  </div>
+</div>
+
+<script>
+/* Stripe Payment Links: paste each link here. Empty = we email the buyer a payment link instead. */
+const PAY = {
+  quick:       '',   // $100
+  quickPublic: '',   // $90  (Quick fighter, made public)
+  full:        '',   // $200
+  fullPublic:  ''    // $190 (Full fighter, made public)
+};
+const PUBLIC_OFF = 10;
+
+const $ = id => document.getElementById(id), form = $('order');
+const pkg = () => form.querySelector('input[name=package]:checked');
+const isKid = () => form.querySelector('input[name=based_on]:checked').value.startsWith('My child');
+function update(){
+  const p = pkg(), kid = isKid(), pub = $('publicBox');
+  if(kid){ pub.checked = false; } pub.disabled = kid;
+  $('publicWrap').classList.toggle('off', kid); $('kidNote').classList.toggle('hidden', !kid);
+  $('creditField').hidden = !pub.checked;
+  $('specialField').hidden = p.dataset.key !== 'full';
+  const total = +p.dataset.price - (pub.checked ? PUBLIC_OFF : 0);
+  $('sum').textContent = '$' + total;
+  $('what').textContent = p.value + (pub.checked ? ' · public ($' + PUBLIC_OFF + ' off)' : '');
+  $('totalField').value = total;
+}
+form.addEventListener('change', update); update();
+form.addEventListener('input', () => { $('err').textContent = ''; });
+
+/* photo previews; photos are shrunk in the browser before upload (Netlify takes 8 MB per order) */
+const shrunk = {};
+form.querySelectorAll('.drop').forEach(drop => {
+  const input = drop.querySelector('input'), x = drop.querySelector('.x');
+  input.addEventListener('change', async () => {
+    const f = input.files[0]; if(!f) return;
+    const old = drop.querySelector('img'); if(old) old.remove();
+    try{
+      const blob = await shrink(f, 1600, 0.86); shrunk[input.name] = blob;
+      const img = new Image(); img.src = URL.createObjectURL(blob); img.alt = ''; drop.appendChild(img); drop.classList.add('has');
+    }catch(e){ delete shrunk[input.name]; input.value = ''; $('err').textContent = "That photo couldn't be read. Try a JPG or PNG."; }
+  });
+  x.addEventListener('click', e => { e.preventDefault(); input.value = ''; delete shrunk[input.name]; const i = drop.querySelector('img'); if(i) i.remove(); drop.classList.remove('has'); });
+});
+function shrink(file, max, q){
+  return new Promise((res, rej) => {
+    const img = new Image(); img.onerror = rej;
+    img.onload = () => { const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); c.toBlob(b => b ? res(b) : rej(), 'image/jpeg', q); URL.revokeObjectURL(img.src); };
+    img.src = URL.createObjectURL(file);
+  });
+}
+function orderId(){
+  const d = new Date(), p = n => String(n).padStart(2, '0'), A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let r = ''; for(let i = 0; i < 4; i++) r += A[Math.floor(Math.random() * A.length)];
+  return `DF-${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${r}`;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault(); const err = $('err'); err.textContent = '';
+  const need = [['name', 'your name'], ['email', 'your email'], ['fname', 'a fighter name']].find(([id]) => !$(id).value.trim());
+  if(need){ err.textContent = 'Please add ' + need[1] + '.'; $(need[0]).focus(); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test($('email').value.trim())){ err.textContent = 'That email doesn’t look right.'; $('email').focus(); return; }
+  if(!shrunk.photo1){ err.textContent = 'Please add a front, full-body photo.'; return; }
+  if(!$('agree').checked){ err.textContent = 'Please agree to the rules to place your order.'; $('agree').focus(); return; }
+  update(); const id = orderId(); $('orderId').value = id;
+  const fd = new FormData(form);
+  for(const n of ['photo1', 'photo2', 'photo3']){ fd.delete(n); if(shrunk[n]) fd.append(n, shrunk[n], `${id}-${n}.jpg`); }
+  const go = $('go'); go.disabled = true; go.textContent = 'Sending…';
+  try{
+    const r = await fetch('/custom.html', { method: 'POST', body: fd });
+    if(!r.ok) throw new Error(r.status);
+  }catch(x){ go.disabled = false; go.textContent = 'Place order'; err.textContent = 'Your order didn’t send. Check your connection and try again.'; return; }
+  const key = pkg().dataset.key + ($('publicBox').checked ? 'Public' : ''), link = PAY[key];
+  if(link){
+    const u = new URL(link); u.searchParams.set('client_reference_id', id); u.searchParams.set('prefilled_email', $('email').value.trim());
+    location.href = u.toString(); return;
+  }
+  form.classList.add('hidden'); $('done').classList.remove('hidden'); $('doneId').textContent = id;
+  scrollTo({ top: $('done').offsetTop - 20, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>

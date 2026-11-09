@@ -335,7 +335,7 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 .cs-arrow{flex:none;background:none;border:none;color:var(--gold);font-size:clamp(40px,8vh,72px);line-height:1;cursor:pointer;text-shadow:0 0 14px rgba(242,193,78,.6);padding:0 2px}
 #scr-select .sel-grid{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(5px,.9vw,12px)}
 #scr-select .cs-gridwrap{max-width:min(480px,62vh)}   /* six fighters: two rows of three */
-#scr-select .tile{aspect-ratio:4/5;border:2px solid rgba(242,193,78,.55);background:linear-gradient(180deg,#2a2232,#0d0b12);transform:skewX(-6deg)}
+#scr-select .tile{aspect-ratio:4/5;border:2px solid rgba(242,193,78,.55);background:linear-gradient(180deg,#2a2232,#0d0b12);transform:skewX(-6deg)}.addtile{aspect-ratio:4/5}
 #scr-select .tile img{inset:0 -12% 0;width:124%;height:100%;object-fit:cover;object-position:top}
 #scr-select .tile .nm{font-size:clamp(10px,2vh,17px);padding:16px 0 5px;background:linear-gradient(0deg,rgba(0,0,0,.95),rgba(0,0,0,0))}
 #scr-select .tile.p1{border-color:#ff3b4e;box-shadow:0 0 0 2px #ff3b4e,0 0 22px rgba(255,59,78,.55);transform:skewX(-6deg) translateY(-4px)}
@@ -422,7 +422,7 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 .moves{font-size:15px;font-weight:600;color:var(--ink);line-height:1.35}
 .moves b{font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.02em;color:var(--c,#f2c14e)}
 .sel-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.tile{position:relative;aspect-ratio:1/1.08;border:2px solid rgba(255,255,255,.14);background:linear-gradient(180deg,#25212f,#121017);overflow:hidden;cursor:pointer;padding:0;transform:skewX(-6deg);transition:transform .12s,border-color .12s}
+.tile{position:relative;aspect-ratio:1/1.08;border:2px solid rgba(255,255,255,.14);background:linear-gradient(180deg,#25212f,#121017);overflow:hidden;cursor:pointer;padding:0;transform:skewX(-6deg);transition:transform .12s,border-color .12s}.addtile{aspect-ratio:1/1.08}
 .tile img{position:absolute;inset:-4% -10% 0;width:120%;height:104%;object-fit:cover;object-position:top;transform:skewX(6deg)}
 .tile .nm{position:absolute;left:0;right:0;bottom:0;padding:3px 0 4px;font-family:var(--display);font-size:clamp(11px,3vw,15px);text-align:center;background:linear-gradient(0deg,rgba(0,0,0,.85),rgba(0,0,0,0));transform:skewX(6deg)}
 .tile.sel{border-color:var(--gold);transform:skewX(-6deg) translateY(-4px);box-shadow:0 0 0 2px var(--gold),0 10px 24px rgba(242,193,78,.25)}
@@ -433,7 +433,7 @@ body.gp :focus{outline:3px solid #fff !important;outline-offset:3px}
 @media (orientation:landscape) and (max-height:620px){
   .sel-body{grid-template-columns:1.4fr 1fr;grid-template-rows:minmax(0,1fr)}
   .sel-grid{grid-template-columns:repeat(3,1fr);align-content:center}
-  .tile{aspect-ratio:1.5/1}
+  .tile{aspect-ratio:1.5/1}.addtile{aspect-ratio:1.5/1}
   .tile img{inset:0;width:100%;height:100%;object-position:center 42%}
   .sel-name{font-size:clamp(28px,8vh,56px)}
   .sel-blurb{display:none}
@@ -517,6 +517,22 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
 @media (prefers-reduced-motion:reduce){
   .drip,.lineup img,.vs-l,.vs-r,.vs-mark,.pb[data-b="x"].ready{animation:none}
 }
+
+/* custom fighters: Fighters / Community tabs on the select grid, the "your fighter here" tile, redeem box */
+.sel-tabs{position:relative;z-index:1;grid-column:1/-1;display:flex;justify-content:center;gap:6px;margin-bottom:2px}
+.sel-tabs .chip{font-size:12px;padding:4px 12px;letter-spacing:.08em;border:1px solid rgba(242,193,78,.45);background:rgba(10,8,14,.7)}
+.sel-tabs .chip[aria-pressed="true"]{background:var(--gold);color:#1a1206;border-color:var(--gold)}
+.addtile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px dashed rgba(242,193,78,.65);background:rgba(242,193,78,.06);color:var(--gold);text-decoration:none;font-family:var(--display);text-transform:uppercase;text-align:center;transform:skewX(-6deg);padding:4px}
+.addtile b{font-size:clamp(22px,4vh,40px);line-height:1;font-weight:400}
+.addtile span{font-size:clamp(9px,1.6vh,13px);line-height:1.1;color:#fff}
+.addtile:hover{background:rgba(242,193,78,.14)}
+.addtile[hidden],.tile[hidden]{display:none}
+.redeem{flex:1;justify-content:flex-end}
+.redeem input{width:min(190px,46vw);font-family:var(--display);font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.5);border:1px solid var(--gold);padding:6px 10px;border-radius:999px;outline:none}
+.redeem-msg{margin:-6px 0 0;min-height:1.1em;font-weight:700;font-size:15px;color:var(--muted);text-align:right}
+.redeem-msg.ok{color:#7dff9a}
+.opt-link{font-family:var(--display);font-size:14px;text-transform:uppercase;color:var(--gold);text-decoration:none;text-align:right}
+a.mbtn{text-decoration:none}
 </style>
 </head>
 <body>
@@ -557,6 +573,7 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
         <button class="mbtn play" id="playBtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="modes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12a4 4 0 0 1 4 4v3a3 3 0 0 1-5.4 1.8L15 15H9l-1.6 1.8A3 3 0 0 1 2 15v-3a4 4 0 0 1 4-4z"/><path d="M7 10.5v4M5 12.5h4"/><circle cx="16" cy="11.5" r=".9"/><circle cx="18.2" cy="13.6" r=".9"/></svg><span>Play</span><i class="slash">//</i></button>
         <button class="mbtn" id="optBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11M18 7h3M3 17h4M11 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg><span>Options</span></button>
         <button class="mbtn" id="helpBtn"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5c3.2-1.2 7-1 10 1 3-2 6.8-2.2 10-1v14c-3.2-1.2-7-1-10 1-3-2-6.8-2.2-10-1z"/><path d="M12 6v14"/></svg><span>How to play</span></button>
+        <a class="mbtn" id="customBtn" href="custom.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7.5" r="4"/><path d="M2.5 21c0-4.4 3.4-7.6 7.5-7.6 1.6 0 3 .4 4.2 1.2"/><path d="M18.5 14v7M15 17.5h7"/></svg><span>Get your fighter</span></a>
       </div>
     </div>
     <div class="t-corner">
@@ -590,6 +607,9 @@ kbd{font-family:var(--body);font-weight:800;font-size:13px;background:rgba(255,2
       <div class="opt-row"><span>Graphics</span><button class="chip qualBtn" aria-label="Graphics quality">Quality: Auto</button></div>
       <div class="opt-row"><span>Audio</span><span class="opt-pair"><button class="chip sndBtn" aria-pressed="true">Sound on</button><button class="chip musBtn" aria-pressed="true">Music on</button></span></div>
       <button class="chip" id="s3dBtn" aria-pressed="true" hidden>3D stage</button>
+      <div class="opt-row"><span>Unlock code</span><span class="opt-pair redeem"><input id="redeemIn" maxlength="16" placeholder="DF-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Unlock code"><button class="chip" id="redeemBtn">Redeem</button></span></div>
+      <p class="redeem-msg" id="redeemMsg" role="status"></p>
+      <a class="opt-link" href="custom.html">Get your own fighter &rarr;</a>
     </div>
     <button class="btn primary" id="optClose"><span>Done</span></button>
   </section>
@@ -2334,7 +2354,7 @@ function setModes(open){ const m=$('modes'); m.hidden=!open; $('playBtn').setAtt
   if(open&&(finePointer||gp.active)){ const f=m.querySelector('.mcard:not([hidden])'); if(f) f.focus({preventScroll:true}); } }
 function closeModes(){ if($('modes').hidden) return; setModes(false); sfx.ui(); $('playBtn').focus({preventScroll:true}); }
 const sel={mode:null,step:0,cursor:0,picks:[]};
-function chooseMode(mode){ sfx.confirm(); wantSong(mode==='boss'?songFor(BOSS_STAGE):'splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0;
+function chooseMode(mode){ sfx.confirm(); wantSong(mode==='boss'?songFor(BOSS_STAGE):'splash.mp3'); game.F=null; game.stage=null; sel.mode=mode; sel.step=0; sel.picks=[]; sel.cursor=0; sel.tab='main'; syncTabs();
   if(mode==='boss'){ cutPrime(); sel.cursor=bossPicks()[0]; }   /* Yahhh starts as soon as the mode is picked */
   show('select'); renderSelect(); }
 let FIG_ASPECT=0.66;   /* widest fighter picture (width / height), measured at boot */
@@ -2421,13 +2441,45 @@ function bindRename(){ for(const n of [1,2]){ const inp=$('csNameIn'+n), ed=$('c
   ed.addEventListener('click',e=>{ e.stopPropagation(); if(!renaming) startRename(); });
   inp.addEventListener('keydown',e=>{ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); endRename(true); } else if(e.key==='Escape'){ e.preventDefault(); endRename(false); } });
   inp.addEventListener('blur',()=>endRename(true)); } }
+/* ---- custom fighters: a roster entry with custom:true stays off the select screen until its unlock code is entered on this
+   device (codeHash = sha256 of "df:"+code), unless public:true. They live on the Community tab; ROSTER order never changes,
+   so online picks (sent as roster indices) mean the same fighter on both screens. Codes: tools/new_code.py */
+const UNLOCK_KEY='dripfighters.unlocks';
+let UNLOCKS=new Set(); try{ UNLOCKS=new Set(JSON.parse(localStorage.getItem(UNLOCK_KEY)||'[]')); }catch(e){}
+const selVisible=ch=>!ch.custom||ch.public||UNLOCKS.has(ch.id);
+const inTab=(ch,tab)=>tab==='community'?(!!ch.custom&&selVisible(ch)):!ch.custom;
+const tabList=()=>ROSTER.map((c,i)=>i).filter(i=>inTab(ROSTER[i],sel.tab||'main'));
+function syncTabs(){ const t=sel.tab||'main';
+  document.querySelectorAll('#selTabs .chip').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tab===t)));
+  document.querySelectorAll('#selGrid .tile').forEach((el,i)=>el.hidden=!inTab(ROSTER[i],t));
+  const add=$('selAdd'); if(add) add.hidden=t!=='community'; }
+function setTab(t){ if(sel.mode==='online'&&NET.myPick!=null) return; sel.tab=t; const L=tabList(); if(L.length&&!L.includes(sel.cursor)) sel.cursor=L[0]; sfx.ui(); syncTabs(); renderSelect(); }
+async function redeemCode(raw){
+  const norm=(raw||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(norm.length<6) return {ok:false,msg:'Enter the code from your email.'};
+  if(!(window.crypto&&crypto.subtle)) return {ok:false,msg:"Codes can't be checked here. Open the game from its https address."};
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('df:'+norm));
+  const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
+  const ch=ROSTER.find(c=>c.custom&&c.codeHash===hex);
+  if(!ch) return {ok:false,msg:"That code doesn't match a fighter. Check it and try again."};
+  const had=UNLOCKS.has(ch.id); UNLOCKS.add(ch.id); try{ localStorage.setItem(UNLOCK_KEY,JSON.stringify([...UNLOCKS])); }catch(e){}
+  syncTabs(); buildBossTiles();
+  return {ok:true,ch,msg:had?`${ch.name} is already unlocked on this device.`:`${ch.name} unlocked! Find them on the Community tab.`};
+}
 function buildSelect(){
   const g=$('selGrid'); g.innerHTML='';
+  const tabs=document.createElement('div'); tabs.className='sel-tabs'; tabs.id='selTabs';
+  tabs.innerHTML='<button class="chip" data-tab="main" aria-pressed="true">Fighters</button><button class="chip" data-tab="community" aria-pressed="false">Community</button>';
+  tabs.querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{ audioInit(); setTab(b.dataset.tab); }));
+  g.appendChild(tabs);
   ROSTER.forEach((ch,i)=>{ const b=document.createElement('button'); b.className='tile'; b.style.setProperty('--c',ch.color); b.setAttribute('aria-label',ch.name);
     b.innerHTML=`<img src="${IMG_SRC[ch.id+'_face']}" alt=""><span class="nm">${ch.name}</span><span class="tags"></span>`;
     b.addEventListener('click',()=>{ audioInit(); if(sel.mode==='online'&&NET.myPick!=null) return; if(sel.cursor===i&&!isTouch){ lockPick(); return; } sel.cursor=i; sfx.ui(); renderSelect(); });
     b.addEventListener('dblclick',()=>lockPick());
     g.appendChild(b); });
+  const add=document.createElement('a'); add.className='addtile'; add.id='selAdd'; add.href='custom.html'; add.hidden=true;
+  add.innerHTML='<b>+</b><span>Your fighter here</span>'; g.appendChild(add);
+  syncTabs();
 }
 function lockPick(){
   if(sel.mode==='online'){ netLockPick(); return; }
@@ -2439,24 +2491,27 @@ function lockPick(){
     playCutscene(beginMatch); return;   /* the intro leads straight into the fight */
   }
   if(sel.mode==='arcade'){
-    const me=sel.picks[0]; const order=ROSTER.map((_,i)=>i).filter(i=>i!==me).sort(()=>Math.random()-0.5);
+    const me=sel.picks[0]; const order=ROSTER.map((_,i)=>i).filter(i=>i!==me&&!ROSTER[i].custom).sort(()=>Math.random()-0.5);
     game.arcade={me,order,idx:0}; goVS(ROSTER[me],ROSTER[order[0]]); return;
   }
-  if(sel.picks.length<2){ sel.step=1; sel.cursor=(sel.cursor+1)%ROSTER.length; renderSelect(); return; }
+  if(sel.picks.length<2){ sel.step=1; const L=tabList(), k=L.indexOf(sel.cursor); if(L.length) sel.cursor=L[(k+1)%L.length]; renderSelect(); return; }
   goStage();
 }
 /* ---- Fight Draco (boss mode): your pick vs Draco on his court, Hard CPU, opens with his intro scene ---- */
 const BOSS_ID='draco', BOSS_STAGE='crank', BOSS_LEVEL=2, BOSS_INTRO='cutscenes/draco_intro.mp4';
 const bossCh=()=>ROSTER.find(c=>c.id===BOSS_ID)||ROSTER[ROSTER.length-1];
-const bossPicks=()=>ROSTER.map((c,i)=>i).filter(i=>ROSTER[i]!==bossCh());
+const bossPicks=()=>ROSTER.map((c,i)=>i).filter(i=>ROSTER[i]!==bossCh()&&selVisible(ROSTER[i]));
 function selMove(d){ if(sel.mode==='boss'){ const L=bossPicks(), k=L.indexOf(sel.cursor); sel.cursor=L[((k<0?0:k+d)%L.length+L.length)%L.length]; }
-  else sel.cursor=(sel.cursor+d+ROSTER.length)%ROSTER.length; sfx.ui(); renderSelect(); }
-function bindBossSel(){
-  const g=$('bsTiles');
+  else { const L=tabList(); if(!L.length) return; const k=L.indexOf(sel.cursor); sel.cursor=L[((k<0?0:k+d)%L.length+L.length)%L.length]; } sfx.ui(); renderSelect(); }
+function buildBossTiles(){
+  const g=$('bsTiles'); if(!g) return; g.innerHTML='';
   bossPicks().forEach(i=>{ const ch=ROSTER[i], b=document.createElement('button'); b.className='bs-tile'; b.dataset.i=i;
     b.innerHTML=`<img src="${IMG_SRC[ch.id+'_face']}" alt=""><span class="nm"></span>`;
     b.addEventListener('click',()=>{ audioInit(); if(sel.cursor===i&&!isTouch){ lockPick(); return; } sel.cursor=i; sfx.ui(); renderBossSel(); });
     b.addEventListener('dblclick',()=>lockPick()); g.appendChild(b); });
+}
+function bindBossSel(){
+  buildBossTiles();
   $('bsPrev').addEventListener('click',()=>{ audioInit(); selMove(-1); });
   $('bsNext').addEventListener('click',()=>{ audioInit(); selMove(1); });
   $('bsGo').addEventListener('click',()=>{ audioInit(); lockPick(); });
@@ -2686,7 +2741,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='1655604950', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='2d57acff6f', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
@@ -2873,6 +2928,8 @@ function bindUI(){
   qbs.forEach(b=>b.addEventListener('click',()=>{ audioInit(); const i=QUAL_ORDER.indexOf(settings.quality||'auto'); setQuality(QUAL_ORDER[(i+1)%QUAL_ORDER.length]); sfx.ui(); })); syncQ(); window.__syncQ=syncQ;
   $('perfLower').addEventListener('click',()=>{ audioInit(); const q=qual(); setQuality(q==='high'?'low':'lowest'); $('perfTip').hidden=true; sfx.ui(); });
   $('perfX').addEventListener('click',()=>{ $('perfTip').hidden=true; perf.dismissed=true; });
+  const doRedeem=async()=>{ audioInit(); const m=$('redeemMsg'), r=await redeemCode($('redeemIn').value); m.textContent=r.msg; m.classList.toggle('ok',r.ok); if(r.ok){ sfx.confirm(); $('redeemIn').value=''; } else sfx.ui(); };
+  $('redeemBtn').addEventListener('click',doRedeem); $('redeemIn').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doRedeem(); } });
   const s3=$('s3dBtn'); const sync3=()=>{ s3.setAttribute('aria-pressed',String(settings.stage3d!==false)); s3.textContent=settings.stage3d!==false?'3D stage on':'3D stage off'; };
   s3.addEventListener('click',()=>{ audioInit(); settings.stage3d=!(settings.stage3d!==false); saveSettings(); sync3(); sfx.ui(); if(game.stage) game.stage=stageFor(game.stage.id); }); sync3();
   const setTxt=(b,t)=>{ const sp=b.querySelector('span'); if(sp) sp.textContent=t; else b.textContent=t; };
@@ -2894,7 +2951,7 @@ function bindUI(){
   $('stgGo').addEventListener('click',()=>pickStage());
   $('selBack').addEventListener('click',()=>{ if(sel.mode==='online'){ if(NET.myPick!=null){ NET.myPick=null; netSend({t:'pick',id:null}); sfx.ui(); renderSelect(); } else netLeave(); return; } if(sel.step===1){ sel.step=0; sel.cursor=sel.picks.pop()??0; renderSelect(); } else goTitle(); });
   $('selGo').addEventListener('click',lockPick);
-  $('selRandom').addEventListener('click',()=>{ audioInit(); sel.cursor=Math.floor(Math.random()*ROSTER.length); renderSelect(); lockPick(); });
+  $('selRandom').addEventListener('click',()=>{ audioInit(); const L=tabList(); sel.cursor=L.length?pick(L):sel.cursor; renderSelect(); lockPick(); });
   $('scr-vs').addEventListener('click',beginMatch);
   bindCutscene();
   $('pauseBtn').addEventListener('click',pauseGame);

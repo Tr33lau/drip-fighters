@@ -1060,10 +1060,28 @@ function silhouette(img,color){ const c=document.createElement('canvas'); c.widt
 function altPixels(x,w,h){ try{ const d=x.getImageData(0,0,w,h), p=d.data; for(let i=0;i<p.length;i+=4){ const l=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2]; p[i]=Math.min(255,l*0.5+p[i]*0.28); p[i+1]=Math.min(255,l*0.42+p[i+1]*0.18); p[i+2]=Math.min(255,l*0.78+p[i+2]*0.3+28);} x.putImageData(d,0,0);}catch(e){} }
 function altSkin(img){ const c=document.createElement('canvas'); c.width=img.naturalWidth||img.width; c.height=img.naturalHeight||img.height; const x=c.getContext('2d'); x.drawImage(img,0,0); altPixels(x,c.width,c.height); return c; }
 function silhouette2(img,color){ const c=document.createElement('canvas'); c.width=img.width; c.height=img.height; const x=c.getContext('2d'); x.drawImage(img,0,0); x.globalCompositeOperation='source-in'; x.fillStyle=color; x.fillRect(0,0,c.width,c.height); return c; }
+/* Look test: ink outline around fighters and a light match to each stage. Off unless the page is opened with ?ink=1 (Drip God)
+   or ?ink=all (everyone); add &grade=1 for the stage light match. */
+const INK=(()=>{ const q=new URLSearchParams(location.search); const v=q.get('ink'); return {on:v==='1'||v==='all', all:v==='all', grade:q.get('grade')==='1', px:2.6, color:'#160d10'}; })();
+const STAGE_GRADE={block:'#8a6cff', crank:'#ffb072', quarter:'#7f8cff', arcade:'#d27cff', roof:'#a9cbff', gym:'#ffbe7a', tires:'#ffe2b0'};
+const inkFor=f=>INK.on&&f.ch.anim&&(INK.all||f.ch.id==='drip');
 function animDesc(ch,idx,kind){
   const A=ch.anim, r=A.frames[idx];
   const k=r[7]||1;
   if(!kind) return {img:ch.atlas[r[6]||0],sx:r[0],sy:r[1],w:r[2]/k,h:r[3]/k,ox:r[4]/k,oy:r[5]/k,W0:A.W0,H0:A.H0,k};
+  if(kind==='ink'){   /* ink outline: the frame's silhouette grown by P px, drawn behind the fighter */
+    const key='ink'+idx; let c=A.cache[key]; const P=Math.round(INK.px*k);
+    if(!c){ const sil=animDesc(ch,idx,'black').img; c=document.createElement('canvas'); c.width=r[2]+2*P; c.height=r[3]+2*P; const x=c.getContext('2d');
+      for(const rr of [P*0.5,P]) for(let a=0;a<16;a++) x.drawImage(sil,P+Math.cos(a*0.3927)*rr,P+Math.sin(a*0.3927)*rr);
+      x.globalCompositeOperation='source-in'; x.fillStyle=INK.color; x.fillRect(0,0,c.width,c.height); A.cache[key]=c; }
+    return {img:c,sx:0,sy:0,w:c.width/k,h:c.height/k,ox:r[4]/k-P/k,oy:r[5]/k-P/k,W0:A.W0,H0:A.H0,k};
+  }
+  if(kind==='grade'){   /* the frame's silhouette in the stage's light colour, laid over the fighter with soft-light */
+    const g=STAGE_GRADE[(game.stage&&game.stage.id)||'']||'#ffffff', key='grade'+g+idx; let c=A.cache[key];
+    if(!c){ c=document.createElement('canvas'); c.width=r[2]; c.height=r[3]; const x=c.getContext('2d'); x.drawImage(ch.atlas[r[6]||0],r[0],r[1],r[2],r[3],0,0,r[2],r[3]);
+      x.globalCompositeOperation='source-in'; x.fillStyle=g; x.fillRect(0,0,r[2],r[3]); A.cache[key]=c; }
+    return {img:c,sx:0,sy:0,w:r[2]/k,h:r[3]/k,ox:r[4]/k,oy:r[5]/k,W0:A.W0,H0:A.H0,k};
+  }
   const key=kind+idx; let c=A.cache[key];
   if(!c){ c=document.createElement('canvas'); c.width=r[2]; c.height=r[3]; const x=c.getContext('2d'); x.drawImage(ch.atlas[r[6]||0],r[0],r[1],r[2],r[3],0,0,r[2],r[3]);
     if(kind==='alt') altPixels(x,r[2],r[3]); else { x.globalCompositeOperation='source-in'; x.fillStyle=kind==='white'?'#ffffff':kind==='black'?'#000000':ch.color; x.fillRect(0,0,r[2],r[3]); }
@@ -2052,7 +2070,10 @@ function drawFighter(c,f,glowIt){
   if(glowIt||(f.state==='attack'&&f.move&&f.move.kind==='super')){ const a=0.3+0.14*Math.sin(f.t*0.5); spriteOff(fDesc(f),f,pose,f.ch.color); for(const [ox,oy] of [[-5,0],[5,0],[0,-5],[0,4]]) blitOff(c,f.x,f.y,a,'lighter',ox,oy); }
   const altAnim=f.alt&&!!f.ch.anim;
   if(f.blend){ spriteOff(f.blend.desc,f,f.blend.pose,altAnim?'ALT':null); blitOff(c,f.x,f.y,0.85*f.blend.t/BLEND); }
-  const dsc=fDesc(f); if(altAnim){ spriteOff(dsc,f,pose,'ALT'); blitOff(c,f.x,f.y,1); } else drawSprite(c,dsc,f,f.x,f.y,pose,1); f.lastDesc=dsc; f.lastPose=Object.assign({},pose);
+  const dsc=fDesc(f), ink=inkFor(f)&&f.curAnim!=null;
+  if(ink) drawSprite(c,animDesc(f.ch,f.curAnim,'ink'),f,f.x,f.y,pose,0.92);
+  if(altAnim){ spriteOff(dsc,f,pose,'ALT'); blitOff(c,f.x,f.y,1); } else drawSprite(c,dsc,f,f.x,f.y,pose,1); f.lastDesc=dsc; f.lastPose=Object.assign({},pose);
+  if(ink&&INK.grade&&!altAnim) drawSprite(c,animDesc(f.ch,f.curAnim,'grade'),f,f.x,f.y,pose,0.34,'soft-light');
   if(f.flash>0){ spriteOff(fDesc(f),f,pose,'#fff'); blitOff(c,f.x,f.y,0.75*f.flash/5); }
   else if(f.invuln>0&&f.state==='getup'&&f.t%4<2){ spriteOff(fDesc(f),f,pose,'#fff'); blitOff(c,f.x,f.y,0.2); }
   drawTrail(c,f);
@@ -2743,7 +2764,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='949973a683', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='2e33b15868', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};

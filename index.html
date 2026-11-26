@@ -895,7 +895,7 @@ function wantSong(file){
     .then(b=>{ AU.loadingSong=null; if(!b) return; AU.bufs[file]=b; if(AU.want===file) switchSong(file,b); }).catch(()=>{ AU.loadingSong=null; });
 }
 const SONG_DUCK=0.35;   /* song level under a cutscene's own sound */
-function songLevel(){ return AU.duck?SONG_DUCK:1; }
+function songLevel(){ return AU.duck?(AU.duckLevel||SONG_DUCK):1; }
 function duckSong(on){ AU.duck=on; const c=AU.ctx; if(c&&AU.songGain&&AU.songSrc) AU.songGain.gain.setTargetAtTime(songLevel(),c.currentTime,on?0.15:0.6); }
 function songPause(){   /* stop the song where it is; songResume picks up from the same spot */
   const c=AU.ctx; AU.musicPaused=true; if(!c||!AU.songSrc||AU.songHeld) return;
@@ -2675,7 +2675,7 @@ function lockPick(){
 /* ---- Boss mode (Fight Draco / Fight Drip God): your pick vs the boss on his home stage, Hard CPU, opens with his intro scene ---- */
 const BOSSES={   /* each boss: home stage, CPU level, intro scene and boss-select art */
   draco:{stage:'crank', level:2, intro:'cutscenes/draco_intro.mp4', hero:'sprites/draco_hero.webp?v=41e782bc', bg:'sprites/boss_sel_bg.webp?v=17befde2'},
-  drip:{stage:'tires', level:2, intro:'cutscenes/dripgod_intro.mp4', hero:'sprites/drip_pose.webp?v=7b8baae3', bg:'sprites/dripgod_sel_bg.webp?v=8fde7a41'}};
+  drip:{stage:'tires', level:2, duck:0.18, intro:'cutscenes/dripgod_intro.mp4', hero:'sprites/drip_pose.webp?v=7b8baae3', bg:'sprites/dripgod_sel_bg.webp?v=8fde7a41'}};
 let BOSS_ID='draco', BOSS_STAGE='crank', BOSS_LEVEL=2, BOSS_INTRO=BOSSES.draco.intro;
 function setBoss(id){ if(!BOSSES[id]) id='draco'; const B=BOSSES[id];
   if(id!==BOSS_ID){ const v=$('csVid'); if(v&&v.getAttribute('src')){ v.removeAttribute('src'); try{ v.load(); }catch(e){} } }   /* drop the other boss's buffered intro */
@@ -2726,6 +2726,7 @@ function playCutscene(done){
   try{ v.currentTime=0; }catch(e){}
   v.muted=!settings.sound; v.volume=1; v.classList.remove('on'); $('scr-cutscene').classList.remove('out'); $('csSound').hidden=true; $('csLoad').hidden=true;
   show('cutscene'); try{ speechSynthesis.cancel(); }catch(e){}
+  AU.duckLevel=(BOSSES[BOSS_ID]&&BOSSES[BOSS_ID].duck)||SONG_DUCK;   /* Drip God talks through his intro: his song sits lower under it */
   duckSong(true); wantSong(songFor(BOSS_STAGE));   /* Yahhh plays under the scene and keeps going into the fight */
   const p=v.play();   /* called straight from the tap / key press, so the scene can play with sound */
   if(p&&p.catch) p.catch(()=>{ if(!cut.on) return; v.muted=true;   /* sound blocked by the browser: play silently, offer sound */
@@ -2927,7 +2928,7 @@ addEventListener('pointerdown',()=>{ if(gp.active){ gp.active=false; document.bo
    Both players run the same fight. Each frame only the buttons are sent; a frame is simulated once both players' buttons
    for it have arrived. Your own presses are scheduled a few frames ahead (input delay) so the opponent's usually arrive in time.
    Every second the host sends a fingerprint of the fight plus a full snapshot; if the guest's copy ever differs it is repaired. */
-const BUILD_ID='b57cf81c43', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
+const BUILD_ID='b6a61b2dd3', NET_PREFIX='dripfighters-'+BUILD_ID.slice(0,6)+'-', NET_VIEW=600, STEP_MS=1000/60;
 const PEERJS_URL='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';
 const NET={on:false,running:false,resim:false,role:null,me:0,conn:null,peer:null,frame:0,sent:0,delay:4,inp:[[],[]],cur:[0,0],acc:0,stall:0,
   myPick:null,oppPick:null,meReady:false,oppReady:null,wantRematch:false,oppRematch:false,ping:0,pingT:null,hash:{},pendingChk:{},human:null,match:null,lastStart:null};
